@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/gallery_menu"
+        android:icon="@drawable/ic_menu_gallery"
+        android:title="@string/gallery" />
+
+    <item
+        android:id="@+id/dhgallery_menu"
+        android:icon="@drawable/ic_stars_black_24dp"
+        android:title="@string/dhgallery" />
+
+    <item
+        android:id="@+id/camera_menu"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="@string/camera" />
+    <item
+        android:id="@+id/liked_menu"
+        android:icon="@drawable/ic_toast_like"
+        android:title="@string/like" />
+    <item
+        android:id="@+id/flicker_menu"
+        android:icon="@drawable/ic_cloud_download_black_24dp"
+        android:title="@string/flicker" />
+
+</menu>

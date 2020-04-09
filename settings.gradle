@@ -1,0 +1,2 @@
+rootProject.name='projetcv15'
+include ':app'
