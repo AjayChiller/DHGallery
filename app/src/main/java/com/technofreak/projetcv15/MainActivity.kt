@@ -105,12 +105,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        Toast.makeText(this,"HII",Toast.LENGTH_SHORT).show()
 
 
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -158,7 +154,7 @@ class MainActivity : AppCompatActivity() {
         binding.navView.visibility=View.VISIBLE
         binding.welcomeView.visibility = View.GONE
         binding.permissionRationaleView.visibility = View.GONE
-        this.toast("showimg")
+
     }
 
 
@@ -222,12 +218,6 @@ class MainActivity : AppCompatActivity() {
 
             ActivityCompat.requestPermissions(this, PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
         }
-    }
-
-
-
-    inline fun Context.toast(message:String){
-        Toast.makeText(this, message , Toast.LENGTH_SHORT).show()
     }
 
 
