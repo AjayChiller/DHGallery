@@ -8,10 +8,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +21,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.technofreak.projetcv15.adapter.GalleryAdapter
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.camera.CameraActivity
@@ -33,10 +32,11 @@ import com.technofreak.projetcv15.liked.LikedActivity
 
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
+import kotlinx.android.synthetic.main.activity_main.nav_view
 
 
 const val PERMISSIONS_REQUEST_CODE = 10
-val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.INTERNET)
+val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
@@ -44,19 +44,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        supportActionBar!!.setTitle("Gallery")
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         //BOTTOM NAVIGATION
+        nav_view.selectedItemId=R.id.gallery_menu
         binding.navView.setOnNavigationItemSelectedListener() {
             val item=it.itemId
             if(item==R.id.gallery_menu)
             {
-                startActivity(Intent(this,MainActivity::class.java))
+                val intent=Intent(this,MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+             //   startActivity(intent)
             }
             else if(item==R.id.camera_menu)
             {
                 startActivity(Intent(this,CameraActivity::class.java))
+
             }
             else if(item==R.id.dhgallery_menu)
             {
@@ -76,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         val galleryAdapter = GalleryAdapter ()
         galleryAdapter.setOnClickListener { image ,pos->
             val intent = Intent(this, ScreenSlidePagerActivity::class.java)
-            intent.putExtra("position", pos);
+            intent.putExtra("position", pos)
             startActivity(intent)
         }
 
@@ -84,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         binding.gallery.adapter = galleryAdapter
         binding.gallery.addItemDecoration(
             SpaceItemDecoration(
-                4
+                10,10,6,6
             )
         )
 
@@ -100,9 +104,7 @@ class MainActivity : AppCompatActivity() {
 
         } else {
             showImages()
-
         }
-
     }
 
 
@@ -118,26 +120,15 @@ class MainActivity : AppCompatActivity() {
             PERMISSIONS_REQUEST_CODE-> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[2] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[3] == PackageManager.PERMISSION_GRANTED  ) {
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                   ) {
 
                     showImages()
                 } else {
                     if( ActivityCompat.shouldShowRequestPermissionRationale(
                             this,
-                            Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                        ActivityCompat.shouldShowRequestPermissionRationale(
-                            this,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE ) ||
-                        ActivityCompat.shouldShowRequestPermissionRationale(
-                            this,
-                            Manifest.permission.CAMERA) ||
-                        ActivityCompat.shouldShowRequestPermissionRationale(
-                            this,
-                            Manifest.permission.INTERNET
-                        )){
+                            Manifest.permission.READ_EXTERNAL_STORAGE)
+                     ){
                         showNoAccess()
                     } else {
                         goToSettings()
@@ -166,16 +157,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun GetPermissions() {
         if (arePermissionsEnabled()) {
-
             showImages()
         } else {
-
             requestPermission()
         }
     }
 
     private fun goToSettings() {
-
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")).apply {
             addCategory(Intent.CATEGORY_DEFAULT)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -190,32 +178,20 @@ class MainActivity : AppCompatActivity() {
      */
     @RequiresApi(Build.VERSION_CODES.M)
     private fun arePermissionsEnabled(): Boolean {
-
-        //Log.i("DDDD","CHECK EACH PERMISSION")
         for (permission in PERMISSIONS_REQUIRED) {
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) return false
         }
         return true
     }
 
-
-
     private fun haveStoragePermission() = PERMISSIONS_REQUIRED.all {
-
-       // Log.i("DDDD","HAV STORAGE PERMISSION")
         ContextCompat.checkSelfPermission(
             this, it
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    /**
-    Method to request permission.
-     */
     private fun requestPermission() {
-
-        //Log.i("DDDD","IN RP")
         if (!haveStoragePermission()) {
-
             ActivityCompat.requestPermissions(this, PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
         }
     }
@@ -223,7 +199,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
-
         return super.onCreateOptionsMenu(menu)
 
     }
@@ -239,6 +214,20 @@ class MainActivity : AppCompatActivity() {
                 }
         return super.onOptionsItemSelected(item)
             }
+    override fun onBackPressed() {
+        super.onBackPressed()
+       val a = Intent(Intent.ACTION_MAIN)
+        a.addCategory(Intent.CATEGORY_HOME)
+        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(a)
+        finish()
+    }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        Log.i("DDDD","mainnnnnn")
+        supportActionBar!!.setTitle("Gallery")
+        nav_view.selectedItemId=R.id.gallery_menu
+    }
 }
 
 

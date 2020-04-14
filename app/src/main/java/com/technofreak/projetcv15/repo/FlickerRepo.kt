@@ -19,6 +19,7 @@ package com.technofreak.projetcv15.repo
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.paging.LivePagedListBuilder
 import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.flicker.cachedb.FlickersDatabase
 import com.technofreak.projetcv15.model.PhotoEntity
@@ -30,7 +31,8 @@ import kotlinx.coroutines.withContext
  */
 class FlickerRepo(private val database: FlickersDatabase) {
 
-    val flickerphotos: LiveData<List<FlickerPhoto>> =database.flickerPhotoDao.getPhotos()
+    val dataSourceFactory =database.flickerPhotoDao.getPhotos()
+    val flickerphotos=LivePagedListBuilder(dataSourceFactory, DATABASE_PAGE_SIZE).build()
 
 
     suspend fun searchImages(searchText:String) {
@@ -47,4 +49,11 @@ class FlickerRepo(private val database: FlickersDatabase) {
         }
 
     }
+
+
+    companion object {
+        private const val NETWORK_PAGE_SIZE = 50
+        private const val DATABASE_PAGE_SIZE = 15
+    }
 }
+

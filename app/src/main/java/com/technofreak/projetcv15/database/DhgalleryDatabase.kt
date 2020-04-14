@@ -6,7 +6,7 @@ import com.technofreak.projetcv15.model.PhotoEntity
 import kotlinx.coroutines.CoroutineScope
 
 
-@Database(entities = [PhotoEntity::class], version = 2)
+@Database(entities = [PhotoEntity::class], version = 1)
 abstract class DhgalleryDatabase : RoomDatabase() {
     abstract fun dhgalleryDatabaseDao(): DhgalleryDatabaseDao
     companion object {

@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -19,9 +21,11 @@ import com.technofreak.projetcv15.adapter.DHGalleryAdapter
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.camera.CameraActivity
 import com.technofreak.projetcv15.flicker.FlickerActivity
+import com.technofreak.projetcv15.utils.backPress
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.synthetic.main.activity_d_h_gallery.nav_view
 import kotlinx.android.synthetic.main.activity_liked.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class LikedActivity : AppCompatActivity() {
@@ -29,7 +33,7 @@ class LikedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_liked)
-
+        supportActionBar!!.setTitle("Liked")
         val navView: BottomNavigationView = nav_view
        navView.selectedItemId=R.id.liked_menu
         navView.setOnNavigationItemSelectedListener() {
@@ -37,6 +41,7 @@ class LikedActivity : AppCompatActivity() {
             if(item==R.id.gallery_menu)
             {
                 startActivity(Intent(this, MainActivity::class.java))
+
             }
             else if(item==R.id.camera_menu)
             {
@@ -48,13 +53,13 @@ class LikedActivity : AppCompatActivity() {
             }
             else if(item==R.id.liked_menu)
             {
-                startActivity(Intent(this,LikedActivity::class.java))
+                //startActivity(Intent(this,LikedActivity::class.java))
             }
             else if(item==R.id.flicker_menu)
             {
                 startActivity(Intent(this, FlickerActivity::class.java))
             }
-
+           // ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true
 
         }
@@ -67,20 +72,18 @@ class LikedActivity : AppCompatActivity() {
         gallery.adapter = likedAdapter
         gallery.addItemDecoration(
             SpaceItemDecoration(
-                4
+                10,10,6,6
             )
         )
 
 
         viewModel.likedPhotos.observe(this, Observer { photos ->
-            // Update the cached copy of the words in the adapter.
-            Log.i("DDDD","observing"+photos.size)
+            if(photos.size>0)
+                no_Liked.visibility=View.GONE
             likedAdapter.submitList(photos)
         })
 
-        likedAdapter.setOnClickListenerimage { image ,pos->
-
-     //       Log.i("DDDDxxx",""+image.contentUri)
+        likedAdapter.setOnClickListenerimage { pos->
             val intent = Intent(this, ScreenSlidePagerActivity::class.java)
             intent.putExtra("dhgallery", true)
             intent.putExtra("position", pos)
@@ -105,5 +108,15 @@ class LikedActivity : AppCompatActivity() {
             item.title = "List"
         }
         return super.onOptionsItemSelected(item)
+    }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        backPress(this)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        supportActionBar!!.setTitle("Liked")
+        nav_view.selectedItemId=R.id.liked_menu
     }
 }

@@ -3,9 +3,12 @@ package com.technofreak.projetcv15
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,6 +20,7 @@ import com.technofreak.projetcv15.camera.CameraActivity
 import com.technofreak.projetcv15.flicker.FlickerActivity
 import com.technofreak.projetcv15.liked.LikedActivity
 import com.technofreak.projetcv15.utils.TopSpacingItemDecoration
+import com.technofreak.projetcv15.utils.backPress
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.synthetic.main.activity_d_h_gallery.*
 
@@ -25,7 +29,7 @@ class DHGalleryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_d_h_gallery)
-
+        supportActionBar!!.setTitle("DH Gallery")
         val navView: BottomNavigationView = nav_view
         navView.selectedItemId=R.id.dhgallery_menu
         navView.setOnNavigationItemSelectedListener() {
@@ -37,10 +41,11 @@ class DHGalleryActivity : AppCompatActivity() {
             else if(item==R.id.camera_menu)
             {
                 startActivity(Intent(this, CameraActivity::class.java))
+                return@setOnNavigationItemSelectedListener true
             }
             else if(item==R.id.dhgallery_menu)
             {
-                startActivity(Intent(this,DHGalleryActivity::class.java))
+                //startActivity(Intent(this,DHGalleryActivity::class.java))
             }
             else if(item==R.id.liked_menu)
             {
@@ -50,7 +55,7 @@ class DHGalleryActivity : AppCompatActivity() {
             {
                 startActivity(Intent(this, FlickerActivity::class.java))
             }
-
+           // ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true
 
         }
@@ -66,12 +71,12 @@ class DHGalleryActivity : AppCompatActivity() {
         )
 
         viewModel.allPhotos.observe(this, Observer { photos ->
-            // Update the cached copy of the words in the adapter.
+            if (photos.size>0)
+                no_Image.visibility=View.GONE
             dhGalleryAdapter.submitList(photos)
         })
 
-        dhGalleryAdapter.setOnClickListenerimage { image ,pos->
-          // Toast.makeText(this,"IMAGE",Toast.LENGTH_LONG).show()
+        dhGalleryAdapter.setOnClickListenerimage { pos->
             val intent = Intent(this, ScreenSlidePagerActivity::class.java)
             intent.putExtra("dhgallery", true)
             intent.putExtra("position", pos)
@@ -89,8 +94,7 @@ class DHGalleryActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+      override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item!!.title == "List") {
             gallery.layoutManager = LinearLayoutManager(this)
             item.title = "Grid"
@@ -100,5 +104,14 @@ class DHGalleryActivity : AppCompatActivity() {
             item.title = "List"
         }
         return super.onOptionsItemSelected(item)
+    }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        backPress(this)
+    }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        supportActionBar!!.setTitle("DH Gallery")
+        nav_view.selectedItemId=R.id.dhgallery_menu
     }
 }

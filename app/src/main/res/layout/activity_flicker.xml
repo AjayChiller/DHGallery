@@ -6,36 +6,56 @@
     android:layout_height="match_parent"
     android:id="@+id/container2"
     tools:context=".flicker.FlickerActivity">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/flickerRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        />
-    <ImageView
-        android:id="@+id/expanded_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"
-
-        android:contentDescription="Touch to zoom" />
     <TextView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/search_photo"
+        android:text="@string/flicker_info"
+        android:gravity="center"
+        android:textSize="@dimen/info_text_size"
+        android:textColor="@color/colorNavIcon"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/placeholder"
+        android:text=" "
         />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/flickerRecyclerView"
+        android:layout_width="@dimen/zero"
+        android:layout_height="@dimen/zero"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/nav_view"/>
+
+
+    <ImageView
+        android:id="@+id/expanded_image"
+        android:visibility="invisible"
+        android:layout_width="@dimen/zero"
+        android:layout_height="@dimen/zero"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription="@string/viewimage" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/zero"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
         app:itemTextColor="@drawable/bottom_navigation_item_colors"
         app:itemIconTint="@drawable/bottom_navigation_item_colors"
         app:itemTextAppearanceActive="@color/colorPrimary"

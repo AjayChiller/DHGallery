@@ -13,10 +13,9 @@ var method= "flickr.photos.search"
 var api_key="b7578c6d6eeb50e755c8b2616cb2d91a"
 var format="json"
 var nojsoncallback=1
-var per_page=25
 //Photoresponse to FlickerPhoto to add to db
 suspend fun loadPhotos( searchText:String): List<FlickerPhoto> {
-        val  searchResponse= FlickerApi.retrofitService.fetchImages(method, api_key,format, nojsoncallback,1,searchText,per_page)
+        val  searchResponse= FlickerApi.retrofitService.fetchImages(method, api_key,format, nojsoncallback,1,searchText)
         val photosList = searchResponse.photos.photo.map { photo ->
             FlickerPhoto(
                 id = photo.id.toLong(),

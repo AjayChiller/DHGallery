@@ -1,5 +1,7 @@
 package com.technofreak.projetcv15.camera
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import com.technofreak.projetcv15.R
 import android.os.Bundle
@@ -11,13 +13,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
+import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import com.technofreak.projetcv15.DHGalleryActivity
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.databinding.ActivityCameraBinding
+import kotlinx.android.synthetic.main.activity_d_h_gallery.*
 import java.io.File
+import java.text.SimpleDateFormat
+
+import java.util.*
 import java.util.concurrent.Executors
 
 
@@ -25,21 +31,25 @@ import java.util.concurrent.Executors
 class CameraActivity : AppCompatActivity() ,LifecycleOwner{
     private lateinit var binding: ActivityCameraBinding
     private lateinit var viewFinder: TextureView
+    private  var lensMode=CameraX.LensFacing.BACK
     private   lateinit var captureButton: ImageButton
     private lateinit var viewModel: CameraActivityViewModel
-    private  var lensMode=CameraX.LensFacing.BACK
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
+
+
         viewModel= ViewModelProvider(this).get(CameraActivityViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera)
         viewFinder = binding.viewFinder
         captureButton = binding.captureButton
-        viewFinder.post { startCamera() }
-        display()
-        binding.imageView.setOnClickListener{
+        methodWithPermissions()
+       binding.imageView.setOnClickListener{
             startActivity(Intent(this,DHGalleryActivity::class.java))
         }
+
+
         binding.switchCamera.setOnClickListener{
             if(lensMode == CameraX.LensFacing.BACK) {
                 lensMode = CameraX.LensFacing.FRONT
@@ -69,31 +79,15 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner{
 
 
         startCamera()    }
-
-
-    fun display()
-    {
-        viewModel.allPhotos.observe(this, Observer { photos ->
-            // Update the cached copy of the words in the adapter.
-            for(i in photos) {
-                Log.i(
-                    "DDDD SQL",
-              //      "id = " + i.id + "---name = " + i.displayName + "---DateTaken = " + i.dateTaken + "---tags = " + i.tags + "---liked = " + i.liked
-                    "id = " + i.id + "---name = " + i.displayName +  "---liked = " + i.liked
-                )
-            }
-            })
-        viewModel.likedPhotos.observe(this, Observer { photos ->
-            // Update the cached copy of the words in the adapter.
-            for(i in photos) {
-                Log.i(
-                    "DDDD  LIKED",
-                    //      "id = " + i.id + "---name = " + i.displayName + "---DateTaken = " + i.dateTaken + "---tags = " + i.tags + "---liked = " + i.liked
-                    "id = " + i.id + "---name = " + i.displayName +  "---liked = " + i.liked
-                )
-            }
-        })
+    fun methodWithPermissions() = runWithPermissions(Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO) {
+     //   Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
+        viewFinder.post { startCamera() }
     }
+
+
+
+
+
     private val executor = Executors.newSingleThreadExecutor()
 
     private fun startCamera() {
@@ -160,25 +154,6 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner{
         CameraX.bindToLifecycle(this, preview, imageCapture)
     }
 
-/*
-    fun get_Input(image_file : File) {
-        Log.i("DDDD", "Got")
-        val title = "test"
-        val tags = "tag1,tag2,tag3,testing"
-        val uri = image_file.absolutePath
-        val date = image_file.lastModified()
-        val photoEntity = PhotoEntity(
-            0,
-            title,
-            date,
-            uri,
-            tags
-        )
-        viewModel.insert(photoEntity)
-    }
-*/
-
-
     fun get_Input(image_file : File) {
         val customLayout = LayoutInflater.from(this).inflate(R.layout.image_input_dialog, null)
         val image_title: TextInputLayout = customLayout.findViewById(R.id.title)
@@ -210,6 +185,35 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner{
         return
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        intent = Intent(this, DHGalleryActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+        // ActivityCompat.finishAffinity(this)
+
+    }
+
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        nav_view.selectedItemId=R.id.camera_menu
+    }
+
+    companion object {
+
+        private const val TAG = "CameraXBasic"
+        private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private const val PHOTO_EXTENSION = ".jpg"
+        private const val RATIO_4_3_VALUE = 4.0 / 3.0
+        private const val RATIO_16_9_VALUE = 16.0 / 9.0
+
+        /** Helper function used to create a timestamped file */
+        private fun createFile(baseFolder: File, format: String, extension: String) =
+            File(baseFolder, SimpleDateFormat(format, Locale.US)
+                .format(System.currentTimeMillis()) + extension)
+    }
 
 }
 

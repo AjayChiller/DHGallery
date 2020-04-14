@@ -5,11 +5,22 @@
     <dimen name="round_button_medium">50dp</dimen>
     <dimen name="round_button_large">75dp</dimen>
 
-    <dimen name="cameraui">50dp</dimen>
+    <dimen name="cameraui">40dp</dimen>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="zero">0dp</dimen>
+    <dimen name="capture_button_margin">20dp</dimen>
+    <dimen name="camera_ui_margin">30dp</dimen>
+    <dimen name="info_text_size">20sp</dimen>
+    <dimen name="permission_required_text_dimen">72dp</dimen>
+    <dimen name="permission_required_text_padding">16dp</dimen>
+    <dimen name="padding_margin_16">16dp</dimen>
+    <dimen name="card_elev">10dp</dimen>
+    <dimen name="card_corner_radi">2dp</dimen>
+    <dimen name="tags_txt_size">15sp</dimen>
+    <dimen name="title_txt_size">19sp</dimen>
 </resources>

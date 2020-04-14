@@ -59,8 +59,6 @@ class ScreenSlidePagerAdapter(
 
         Glide.with(holder.imageView)
             .load(image.contentUri)
-            .thumbnail(0.33f)
-            .centerCrop()
             .into(holder.imageView)
     }
 

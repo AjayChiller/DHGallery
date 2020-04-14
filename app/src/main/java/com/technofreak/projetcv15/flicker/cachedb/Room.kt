@@ -1,12 +1,13 @@
 package com.technofreak.projetcv15.flicker.cachedb
 
 import android.content.Context
-import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import androidx.room.*
+
 @Dao
 interface FlickerPhotoDao {
     @Query("select * from flickerphoto")
-    fun getPhotos(): LiveData<List<FlickerPhoto>>
+    fun getPhotos(): DataSource.Factory<Int, FlickerPhoto>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll( photos: List<FlickerPhoto>)

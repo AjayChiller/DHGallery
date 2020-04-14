@@ -12,8 +12,13 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/gallery"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_width="@dimen/zero"
+            android:layout_height="@dimen/zero"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/nav_view"
+        />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/top_guideline"
@@ -25,7 +30,7 @@
         <LinearLayout
             android:id="@+id/permission_rationale_view"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/zero"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="gone"
@@ -39,17 +44,17 @@
                 android:id="@+id/permission_required_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="72dp"
-                android:layout_marginEnd="72dp"
+                android:layout_marginStart="@dimen/permission_required_text_dimen"
+                android:layout_marginEnd="@dimen/permission_required_text_dimen"
                 android:gravity="center"
-                android:paddingTop="16dp"
+                android:paddingTop="@dimen/permission_required_text_padding"
                 android:text="@string/permission_not_granted" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/grant_permission_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/permission_required_text_padding"
                 android:text="@string/grant_permission" />
 
         </LinearLayout>
@@ -57,7 +62,7 @@
         <LinearLayout
             android:id="@+id/welcome_view"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="@dimen/zero"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="gone"
@@ -70,7 +75,7 @@
                 android:id="@+id/open_album"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/permission_required_text_padding"
                 android:text="@string/open_album" />
 
         </LinearLayout>
@@ -78,10 +83,8 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/nav_view"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/zero"
             android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp"
             app:itemTextColor="@drawable/bottom_navigation_item_colors"
             app:itemIconTint="@drawable/bottom_navigation_item_colors"
             app:itemTextAppearanceActive="@color/colorPrimary"

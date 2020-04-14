@@ -4,19 +4,14 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.*
 import com.technofreak.projetcv15.flicker.cachedb.getDatabase
-import com.technofreak.projetcv15.model.PhotoEntity
-import com.technofreak.projetcv15.flicker.networking.FlickerApi
 import com.technofreak.projetcv15.repo.FlickerRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.io.IOException
-
 class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(application) {
     private val context=application
 
@@ -35,7 +30,7 @@ class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(ap
   fun funsearchText(searchtext:String)
     {
         if (isonnected())
-        viewModelScope.launch {
+          viewModelScope.launch {
             videosRepository.searchImages(searchtext)
         }
         else

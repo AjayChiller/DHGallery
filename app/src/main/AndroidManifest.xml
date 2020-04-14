@@ -4,32 +4,46 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
-        android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_app_icon"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_app_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".flicker.FlickerActivity"/>
-        <activity android:name=".liked.LikedActivity" />
-        <activity android:name=".DHGalleryActivity" />
-        <activity android:name=".MainActivity">
+
+        <activity android:name=".flicker.FlickerActivity"
+            android:launchMode="singleInstance"
+           />
+
+        <activity android:name=".liked.LikedActivity"
+            android:launchMode="singleInstance"
+         />
+
+        <activity android:name=".DHGalleryActivity"
+            android:launchMode="singleInstance"
+            />
+
+        <activity android:name=".MainActivity"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".viewpager.ScreenSlidePagerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleInstance"
+           />
         <activity
             android:name=".camera.CameraActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleInstance"
+           />
     </application>
 
 </manifest>

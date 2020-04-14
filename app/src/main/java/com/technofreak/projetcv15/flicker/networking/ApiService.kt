@@ -38,11 +38,8 @@ interface ApiService {
     suspend fun fetchImages(
         @Query("method") method: String, @Query("api_key") api_key: String,
         @Query("format") format: String, @Query("nojsoncallback") nojsoncallback: Int,
-        @Query("page") page: Int, @Query("text") text: String?,
-        @Query("per_page") per_page: Int
+        @Query("page") page: Int, @Query("text") text: String?
     ): FlickerPhotoModel
-
-
 }
 
 object FlickerApi {

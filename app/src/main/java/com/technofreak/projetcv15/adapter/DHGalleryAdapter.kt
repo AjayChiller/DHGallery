@@ -19,14 +19,12 @@ import kotlinx.coroutines.withContext
 
 class DHGalleryAdapter :    ListAdapter<PhotoEntity, ImageViewHolder2>(
     PhotoEntity.DiffCallback) {
-    private lateinit var onClickImage: (PhotoEntity, Int) -> Unit
-    fun setOnClickListenerimage(onclick: (PhotoEntity, Int) -> Unit) {
-        Log.i("DDDDxxx","imagee")
-        this.onClickImage = onclick
+    private lateinit var onClickImage: ( Int) -> Unit
+    fun setOnClickListenerimage(onclick: ( Int) -> Unit) {
+         this.onClickImage = onclick
     }
     private lateinit var onClickLike: (PhotoEntity) -> Unit
     fun setOnClickListenerlike(onclick: (PhotoEntity) -> Unit) {
-        Log.i("DDDDx","DID ID CALL likedd")
        this.onClickLike = onclick
     }
 
@@ -35,11 +33,9 @@ class DHGalleryAdapter :    ListAdapter<PhotoEntity, ImageViewHolder2>(
         val vh = ImageViewHolder2(LayoutInflater.from(parent.context).inflate(R.layout.liked_images_blog_item, parent, false))
 
 
-
         vh.imageView.setOnClickListener {
             val position = vh.adapterPosition
-            val picture = getItem(position)
-            onClickImage(picture, position)
+            onClickImage(position)
         }
         return vh
     }
@@ -50,10 +46,6 @@ class DHGalleryAdapter :    ListAdapter<PhotoEntity, ImageViewHolder2>(
         holder.pos=position
         holder.rootView.tag = photoEntity
         holder.title.text=photoEntity.displayName
-        val str:StringBuffer=StringBuffer(photoEntity.tags!!)
-        val s=photoEntity.tags
-
-
         holder.tags.text=photoEntity.tags
         if(photoEntity.liked) {
             holder.like_button.setImageResource(R.drawable.ic_toast_like)

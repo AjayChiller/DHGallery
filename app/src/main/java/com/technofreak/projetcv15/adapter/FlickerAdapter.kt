@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -11,10 +12,10 @@ import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
 import kotlinx.android.extensions.LayoutContainer
 
-class FlickerAdapter() :  ListAdapter<FlickerPhoto, ImageViewHolder3>(
+class FlickerAdapter() :  PagedListAdapter<FlickerPhoto, ImageViewHolder3>(
     FlickerPhoto.DiffCallback) {
-    private lateinit var onClick: (FlickerPhoto, Int) -> Unit
-    fun setOnClickListener(onClick: (FlickerPhoto, Int) -> Unit) {
+    private lateinit var onClick: (FlickerPhoto) -> Unit
+    fun setOnClickListener(onClick: (FlickerPhoto) -> Unit) {
         this.onClick = onClick
     }
 
@@ -24,7 +25,7 @@ class FlickerAdapter() :  ListAdapter<FlickerPhoto, ImageViewHolder3>(
         vh.containerView.setOnClickListener {
             val position = vh.adapterPosition
             val picture = getItem(position)
-            onClick(picture,position)
+            onClick(picture!!)
         }
 
         return vh
@@ -36,7 +37,7 @@ class FlickerAdapter() :  ListAdapter<FlickerPhoto, ImageViewHolder3>(
         holder.pos=position
         holder.rootView.tag = flickerPhoto
         Glide.with(holder.imageView)
-            .load(flickerPhoto.url)
+            .load(flickerPhoto?.url)
             .thumbnail(0.33f)
             .centerCrop()
             .into(holder.imageView)
