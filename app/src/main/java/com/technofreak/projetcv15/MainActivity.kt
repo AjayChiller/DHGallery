@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -28,10 +30,12 @@ import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.databinding.ActivityMainBinding
 import com.technofreak.projetcv15.flicker.FlickerActivity
 import com.technofreak.projetcv15.liked.LikedActivity
+import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
 
 
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
+import kotlinx.android.synthetic.main.activity_camera.*
 import kotlinx.android.synthetic.main.activity_main.nav_view
 
 
@@ -41,6 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
+    private lateinit var galleryAdapter:GalleryAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -51,37 +56,19 @@ class MainActivity : AppCompatActivity() {
         nav_view.selectedItemId=R.id.gallery_menu
         binding.navView.setOnNavigationItemSelectedListener() {
             val item=it.itemId
-            if(item==R.id.gallery_menu)
+            when (item)
             {
-                val intent=Intent(this,MainActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-             //   startActivity(intent)
-            }
-            else if(item==R.id.camera_menu)
-            {
-                startActivity(Intent(this,CameraActivity::class.java))
-
-            }
-            else if(item==R.id.dhgallery_menu)
-            {
-                startActivity(Intent(this,DHGalleryActivity::class.java))
-            }
-            else if(item==R.id.liked_menu)
-            {
-                startActivity(Intent(this,LikedActivity::class.java))
-            }
-            else if(item==R.id.flicker_menu)
-            {
-                startActivity(Intent(this,FlickerActivity::class.java))
+                R.id.flicker_menu->     startActivity(Intent(this, FlickerActivity::class.java))
+                R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
+                R.id.dhgallery_menu->   startActivity(Intent(this, DHGalleryActivity::class.java))
+                R.id.liked_menu->       startActivity(Intent(this, LikedActivity::class.java))
             }
             return@setOnNavigationItemSelectedListener true
         }
 
-        val galleryAdapter = GalleryAdapter ()
+        galleryAdapter = GalleryAdapter ()
         galleryAdapter.setOnClickListener { image ,pos->
-            val intent = Intent(this, ScreenSlidePagerActivity::class.java)
-            intent.putExtra("position", pos)
-            startActivity(intent)
+            startViewPager(pos)
         }
 
         binding.gallery.layoutManager = GridLayoutManager(this,3)
@@ -107,7 +94,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    private fun startViewPager(pos: Int) {
+        val intent = Intent(this, ScreenSlidePagerActivity::class.java)
+        intent.putExtra("position", pos)
+        startActivity(intent)
+    }
+    private fun startVideoPlayer(uri: String) {
+        val intent = Intent(this, VideoPlayerAvtivity::class.java)
+        intent.putExtra("uri", uri)
+        startActivity(intent)
+    }
 
 
     override fun onRequestPermissionsResult(
@@ -139,9 +135,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
     private fun showImages() {
-
-      //  Log.i("DDDD","IN SI")
-        viewModel.loadImages()
         binding.navView.visibility=View.VISIBLE
         binding.welcomeView.visibility = View.GONE
         binding.permissionRationaleView.visibility = View.GONE
@@ -199,32 +192,59 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        menuInflater.inflate(R.menu.photo_video_menu, menu)
         return super.onCreateOptionsMenu(menu)
 
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item!!.title == "List") {
+
+        if (item!!.itemId==R.id.photo_video)
+        {
+            if (item.title == "Video" ) {
+                item.setIcon(R.drawable.ic_camera_alt_black_24dp)
+                item.title = "Photo"
+                viewModel.videos.observe(this, Observer<List<PhotoEntity>> {
+                    galleryAdapter.submitList(it)
+                })
+                galleryAdapter.setOnClickListener { image ,pos->
+                    startVideoPlayer(image.contentUri)
+                }
+            }
+            else {
+
+                item.setIcon(R.drawable.ic_videocam_black_24dp)
+                item.title = "Video"
+                viewModel.images.observe(this, Observer<List<PhotoEntity>> {
+                    galleryAdapter.submitList(it)
+                })
+                galleryAdapter.setOnClickListener { image ,pos->
+                    startViewPager(pos)
+                }
+            }
+        }
+        else if (item!!.title == "List") {
                     binding.gallery.layoutManager = LinearLayoutManager(this)
                     item.title = "Grid"
                 }
-            else{
+        else{
                     binding.gallery.layoutManager = GridLayoutManager(this,3)
                     item.title = "List"
                 }
+
+
         return super.onOptionsItemSelected(item)
             }
     override fun onBackPressed() {
         super.onBackPressed()
-       val a = Intent(Intent.ACTION_MAIN)
-        a.addCategory(Intent.CATEGORY_HOME)
-        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(a)
+       val home = Intent(Intent.ACTION_MAIN)
+        home.addCategory(Intent.CATEGORY_HOME)
+        home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(home)
         finish()
     }
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Log.i("DDDD","mainnnnnn")
         supportActionBar!!.setTitle("Gallery")
         nav_view.selectedItemId=R.id.gallery_menu
     }

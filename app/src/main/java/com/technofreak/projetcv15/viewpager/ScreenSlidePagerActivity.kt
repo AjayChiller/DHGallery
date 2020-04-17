@@ -3,6 +3,7 @@ package com.technofreak.projetcv15.viewpager
 import ZoomOutPageTransformer
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -15,22 +16,19 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
-import com.technofreak.projetcv15.camera.CameraActivityViewModel
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.ScreenSlidePagerAdapter
-import com.technofreak.projetcv15.flicker.FlickerAcitvityViewModel
+import com.technofreak.projetcv15.camera.CameraActivityViewModel
 import com.technofreak.projetcv15.model.PhotoEntity
+import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
 import kotlinx.android.synthetic.main.activity_screen_slide.*
 import kotlinx.android.synthetic.main.toast_like.view.*
 
 
-
 class ScreenSlidePagerActivity : AppCompatActivity() {
 
     private lateinit var viewPager: ViewPager2
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,26 +52,29 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
 
 
          var screenSlidePagerAdapter:ScreenSlidePagerAdapter
+         screenSlidePagerAdapter = ScreenSlidePagerAdapter(this)
 
         val isDHGallery = intent.getBooleanExtra("dhgallery", false)
         if (isDHGallery == true) {
             val dhgalleryviewModel: CameraActivityViewModel by viewModels()
+
+
             dhgalleryviewModel.allPhotos.observe(this, Observer<List<PhotoEntity>> { images ->
-                screenSlidePagerAdapter = ScreenSlidePagerAdapter(this, images)
+                screenSlidePagerAdapter.setItem(images)
+                screenSlidePagerAdapter.notifyDataSetChanged()
+            })
                 viewPager.adapter = screenSlidePagerAdapter
+                setInitialPos()
                 var doubleClickLastTime = 0L
-                screenSlidePagerAdapter.setOnClickListener { image, pos ->
+                screenSlidePagerAdapter!!.setOnClickListener { image ->
                     if (System.currentTimeMillis() - doubleClickLastTime < 300) {
                         if (image.liked) {
-                            //  Log.i("DDDD","Liked = "+ image.displayName)
                             image.liked = false
                             layout.toast_like_button.visibility = View.GONE
                             layout.toast_unlikelike_button.visibility = View.VISIBLE
                             toast.show()
                             layout.toast_unlikelike_button.startAnimation(toastout)
-
                         } else {
-                            //     Log.i("DDDD","un Liked = "+ image.displayName)
                             image.liked = true
                             layout.toast_like_button.visibility = View.VISIBLE
                             layout.toast_unlikelike_button.visibility = View.GONE
@@ -81,49 +82,53 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
                             layout.toast_like_button.startAnimation(toastin)
                         }
                         doubleClickLastTime = 0
-
-                        Log.i("DDDD", "current pos" + viewPager.currentItem)
                         dhgalleryviewModel.update2(image.id, image.liked)
-
-
                     } else {
                         doubleClickLastTime = System.currentTimeMillis()
                     }
                 }
-            })
-        }
-        else if(intent.getBooleanExtra("flicker", false))
-        {/*
-            val flickerViewModel: FlickerAcitvityViewModel by viewModels()
-            flickerViewModel.flickerPhotos.observe(this, Observer<List<PhotoEntity>> { images ->
-                screenSlidePagerAdapter = ScreenSlidePagerAdapter(this, images)
-                viewPager.adapter = screenSlidePagerAdapter
-                screenSlidePagerAdapter.setOnClickListener { image, pos ->
-                        Toast.makeText(this, ""+image.displayName, Toast.LENGTH_SHORT).show()
-                }
-            })
-            */
+
+            screenSlidePagerAdapter.setOnClickListenerplay {
+                val intent = Intent(this, VideoPlayerAvtivity::class.java)
+                intent.putExtra("uri", it)
+                startActivity(intent)
+            }
 
         }
+
         else {
+
             val galleryviewModel: MainActivityViewModel by viewModels()
             galleryviewModel.images.observe(this, Observer<List<PhotoEntity>> { images ->
-                screenSlidePagerAdapter = ScreenSlidePagerAdapter(this, images)
-                viewPager.adapter = screenSlidePagerAdapter
-                screenSlidePagerAdapter.setOnClickListener { image, pos ->
-                    Toast.makeText(this, ""+image.displayName, Toast.LENGTH_SHORT).show()
-                }
+                screenSlidePagerAdapter.setItem(images)
+                screenSlidePagerAdapter.notifyDataSetChanged()
             })
+            viewPager.adapter = screenSlidePagerAdapter
+            setInitialPos()
+           screenSlidePagerAdapter.setOnClickListenerplay {
+                val intent = Intent(this, VideoPlayerAvtivity::class.java)
+                intent.putExtra("uri", it)
+                startActivity(intent)
+            }
+
+            screenSlidePagerAdapter.setOnClickListener { image ->
+                Toast.makeText(this, ""+image.displayName, Toast.LENGTH_SHORT).show()
+            }
+
         }
 
     }
 
     fun setInitialPos() {
         val pos: Int = intent.getIntExtra("position", 0)
-        Log.i("DDDD", "SET INITIALPOS= " + pos)
         if (pos != 0) {
-            viewPager.setCurrentItem(pos, false)
+            viewPager.postDelayed({ viewPager.setCurrentItem(pos, false) }, 100)
         }
     }
 
+
+    fun dbTapLike(imaage:PhotoEntity, pos:Int)
+    {
+
+    }
 }

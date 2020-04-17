@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 
 class CameraActivityViewModel (application: Application) : AndroidViewModel(application) {
-
+    var camMode=true
     val app=application
     private val photoRepository: PhotoDBRepository
     var allPhotos: LiveData<List<PhotoEntity>>

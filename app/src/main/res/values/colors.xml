@@ -10,5 +10,5 @@
     <color name="colorNavActive">#FF528D</color>
     <color name="colorNavInactive">#FFFFFF</color>
     <color name="title_txt_color">#000</color>
-
+    <color name="camera_icon">#FFFFFF</color>
 </resources>

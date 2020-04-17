@@ -17,12 +17,8 @@
 package com.technofreak.projetcv15.repo
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.paging.LivePagedListBuilder
-import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.flicker.cachedb.FlickersDatabase
-import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.flicker.networking.loadPhotos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

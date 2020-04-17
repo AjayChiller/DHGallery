@@ -11,32 +11,32 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val TAG = "FetchImages"
+private const val TAG = "FetchVideos"
 
-class FetchImages(val context : Context) {
-
-    init {
-        loadImages()
+class FetchVideos(val context : Context) {
+    init{
+        loadVideos()
     }
-    private val _images = MutableLiveData<List<PhotoEntity>>()
-    val images: LiveData<List<PhotoEntity>> get() = _images
+
+    private val _videos = MutableLiveData<List<PhotoEntity>>()
+    val videos: LiveData<List<PhotoEntity>> get() = _videos
 
 
-    fun loadImages() {
+    fun loadVideos() {
         GlobalScope.launch {
-            val imageList = queryImages()
-            _images.postValue(imageList)
+            val videoList = queryVideos()
+            _videos.postValue(videoList)
        }
     }
 
-    private suspend fun queryImages(): List<PhotoEntity> {
-        val images = mutableListOf<PhotoEntity>()
+    private suspend fun queryVideos(): List<PhotoEntity> {
+        val videos = mutableListOf<PhotoEntity>()
 
         withContext(Dispatchers.IO) {
             val projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.DATE_TAKEN
             )
 
 
@@ -45,20 +45,20 @@ class FetchImages(val context : Context) {
 
             val selectionArgs = null
 
-            val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+            val sortOrder = "${MediaStore.Video.Media.DATE_TAKEN} DESC"
            context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 selection,
                 selectionArgs,
                 sortOrder
             )?.use { cursor ->
 
-                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
                 val dateTakenColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                    cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN)
                 val displayNameColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                    cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
                 while (cursor.moveToNext()) {
 
                     // Here we'll use the column indexs that we found above.
@@ -68,35 +68,35 @@ class FetchImages(val context : Context) {
 
                     //getting the actual uri by appending id to it
                     val contentUri = ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                         id
                     ).toString()
 
 
-                    val image = PhotoEntity(
+                    val video = PhotoEntity(
                         id,
                         displayName,
                         dateTaken,
                         contentUri,
                         null
                     )
-                    images += image
+                    videos += video
 
                 }
             }
         }
 
-        return images
+        return videos
     }
 
 
     companion object{
-        private var  instance: FetchImages? =null
-        fun fetchImageInstance(context: Context): FetchImages {
+        private var  instance: FetchVideos? =null
+        fun fetchVideoInstance(context: Context): FetchVideos {
             if (instance==null) {
-                instance = FetchImages(context)
+                instance = FetchVideos(context)
             }
-            return instance as FetchImages
+            return instance as FetchVideos
         }
     }
 

@@ -17,4 +17,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:contentDescription="@string/viewimage" />
 
+    <ImageButton
+        android:layout_width="@dimen/small_play_btn"
+        android:layout_height="@dimen/small_play_btn"
+        android:alpha="0.5"
+        android:padding="@dimen/play_btn_pdding"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/play_button"
+        android:visibility="gone"
+        android:contentDescription="@string/viewimage"
+        android:background="@drawable/ic_play_circle_outline_black_24dp"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

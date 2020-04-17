@@ -21,6 +21,7 @@ import com.technofreak.projetcv15.flicker.FlickerActivity
 import com.technofreak.projetcv15.liked.LikedActivity
 import com.technofreak.projetcv15.utils.TopSpacingItemDecoration
 import com.technofreak.projetcv15.utils.backPress
+import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.synthetic.main.activity_d_h_gallery.*
 
@@ -34,26 +35,12 @@ class DHGalleryActivity : AppCompatActivity() {
         navView.selectedItemId=R.id.dhgallery_menu
         navView.setOnNavigationItemSelectedListener() {
             val item=it.itemId
-            if(item==R.id.gallery_menu)
+            when (item)
             {
-                startActivity(Intent(this,MainActivity::class.java))
-            }
-            else if(item==R.id.camera_menu)
-            {
-                startActivity(Intent(this, CameraActivity::class.java))
-                return@setOnNavigationItemSelectedListener true
-            }
-            else if(item==R.id.dhgallery_menu)
-            {
-                //startActivity(Intent(this,DHGalleryActivity::class.java))
-            }
-            else if(item==R.id.liked_menu)
-            {
-                startActivity(Intent(this, LikedActivity::class.java))
-            }
-            else if(item==R.id.flicker_menu)
-            {
-                startActivity(Intent(this, FlickerActivity::class.java))
+                R.id.gallery_menu->     startActivity(Intent(this, MainActivity::class.java))
+                R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
+                R.id.flicker_menu->   startActivity(Intent(this, FlickerActivity::class.java))
+                R.id.liked_menu->       startActivity(Intent(this, LikedActivity::class.java))
             }
            // ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true
@@ -80,6 +67,11 @@ class DHGalleryActivity : AppCompatActivity() {
             val intent = Intent(this, ScreenSlidePagerActivity::class.java)
             intent.putExtra("dhgallery", true)
             intent.putExtra("position", pos)
+            startActivity(intent)
+        }
+        dhGalleryAdapter.setOnClickListenerplay{ uri->
+           val intent = Intent(this, VideoPlayerAvtivity::class.java)
+            intent.putExtra("uri", uri)
             startActivity(intent)
         }
         dhGalleryAdapter.setOnClickListenerlike{

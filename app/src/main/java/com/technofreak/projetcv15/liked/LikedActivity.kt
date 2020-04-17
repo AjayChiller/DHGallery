@@ -38,28 +38,13 @@ class LikedActivity : AppCompatActivity() {
        navView.selectedItemId=R.id.liked_menu
         navView.setOnNavigationItemSelectedListener() {
             val item=it.itemId
-            if(item==R.id.gallery_menu)
+            when (item)
             {
-                startActivity(Intent(this, MainActivity::class.java))
-
+                R.id.gallery_menu->     startActivity(Intent(this, MainActivity::class.java))
+                R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
+                R.id.dhgallery_menu->   startActivity(Intent(this, DHGalleryActivity::class.java))
+                R.id.flicker_menu->       startActivity(Intent(this, FlickerActivity::class.java))
             }
-            else if(item==R.id.camera_menu)
-            {
-                startActivity(Intent(this, CameraActivity::class.java))
-            }
-            else if(item==R.id.dhgallery_menu)
-            {
-                startActivity(Intent(this, DHGalleryActivity::class.java))
-            }
-            else if(item==R.id.liked_menu)
-            {
-                //startActivity(Intent(this,LikedActivity::class.java))
-            }
-            else if(item==R.id.flicker_menu)
-            {
-                startActivity(Intent(this, FlickerActivity::class.java))
-            }
-           // ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true
 
         }

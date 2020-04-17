@@ -1,8 +1,10 @@
 package com.technofreak.projetcv15.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +29,7 @@ class GalleryAdapter() :          ListAdapter<PhotoEntity, ImageViewHolder>(
             onClick(picture,position)
         }
 
+
         return vh
     }
 
@@ -40,6 +43,11 @@ class GalleryAdapter() :          ListAdapter<PhotoEntity, ImageViewHolder>(
             .thumbnail(0.33f)
             .centerCrop()
             .into(holder.imageView)
+        val uri=photoEntity.displayName
+        val index=uri.lastIndexOf(".")
+        Log.i("DDDD","  "+photoEntity.displayName)
+        if (index > 0 && uri.substring(index) == ".mp4" )
+            holder.play_button.visibility=View.VISIBLE
     }
 }
 /**
@@ -49,6 +57,6 @@ class ImageViewHolder( override val containerView: View) :    RecyclerView.ViewH
     val rootView = containerView
     var pos: Int? = null
     val imageView: ImageView = containerView.findViewById(R.id.image)
-
+    val play_button : ImageButton = containerView.findViewById(R.id.play_button)
 }
 

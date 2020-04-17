@@ -89,8 +89,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.archLifecycleVersion"
 
 
-
-
     implementation 'com.google.android.material:material:1.2.0-alpha06'
 
 
@@ -103,19 +101,26 @@ dependencies {
 
     def paging_version = "2.1.2"
 
-    implementation "androidx.paging:paging-runtime:$paging_version" // For Kotlin use paging-runtime-ktx
+    implementation "androidx.paging:paging-runtime:$paging_version"
+    // For Kotlin use paging-runtime-ktx
 
     // alternatively - without Android dependencies for testing
-    testImplementation "androidx.paging:paging-common:$paging_version" // For Kotlin use paging-common-ktx
+    testImplementation "androidx.paging:paging-common:$paging_version"
+    // For Kotlin use paging-common-ktx
 
     // optional - RxJava support
-    implementation "androidx.paging:paging-rxjava2:$paging_version" // For Kotlin use paging-rxjava2-ktx
+    implementation "androidx.paging:paging-rxjava2:$paging_version"
+    // For Kotlin use paging-rxjava2-ktx
 
     //QUICK PERMISSION
     implementation 'com.github.quickpermissions:quickpermissions-kotlin:0.4.0'
 
 
     //exo complete module
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.4'
-
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.6'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.6'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.10.6'
 }
+
+
