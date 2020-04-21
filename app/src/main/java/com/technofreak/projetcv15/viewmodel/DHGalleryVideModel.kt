@@ -12,8 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class CameraActivityViewModel (application: Application) : AndroidViewModel(application) {
-    var camMode=true
+class DHGalleryViewModel (application: Application) : AndroidViewModel(application) {
     val app=application
     private val photoRepository: PhotoDBRepository
     var allPhotos: LiveData<List<PhotoEntity>>
