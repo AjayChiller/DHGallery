@@ -18,9 +18,9 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.ScreenSlidePagerAdapter
-import com.technofreak.projetcv15.camera.DHGalleryViewModel
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
+import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
 import kotlinx.android.synthetic.main.activity_screen_slide.*
 import kotlinx.android.synthetic.main.toast_like.view.*
@@ -51,7 +51,7 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
         viewPager.setPageTransformer(ZoomOutPageTransformer())
 
 
-         var screenSlidePagerAdapter:ScreenSlidePagerAdapter
+         val screenSlidePagerAdapter:ScreenSlidePagerAdapter
          screenSlidePagerAdapter = ScreenSlidePagerAdapter(this)
 
         val isDHGallery = intent.getBooleanExtra("dhgallery", false)
@@ -66,7 +66,7 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
                 viewPager.adapter = screenSlidePagerAdapter
                 setInitialPos()
                 var doubleClickLastTime = 0L
-                screenSlidePagerAdapter!!.setOnClickListener { image ->
+                screenSlidePagerAdapter.setOnClickListener { image ->
                     if (System.currentTimeMillis() - doubleClickLastTime < 300) {
                         if (image.liked) {
                             image.liked = false
@@ -127,8 +127,5 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
     }
 
 
-    fun dbTapLike(imaage:PhotoEntity, pos:Int)
-    {
 
-    }
 }

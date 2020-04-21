@@ -3,9 +3,6 @@ package com.technofreak.projetcv15.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import com.technofreak.projetcv15.R
 import android.os.Bundle
 import android.util.Log
@@ -22,11 +19,9 @@ import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import com.technofreak.projetcv15.DHGalleryActivity
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.databinding.ActivityCameraBinding
-import kotlinx.android.synthetic.main.activity_d_h_gallery.*
+import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import kotlinx.android.synthetic.main.image_input_dialog.view.*
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 import java.util.concurrent.Executors
 
 

@@ -12,7 +12,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.technofreak.projetcv15.camera.DHGalleryViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.technofreak.projetcv15.DHGalleryActivity
 import com.technofreak.projetcv15.MainActivity
@@ -22,6 +21,7 @@ import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.camera.CameraActivity
 import com.technofreak.projetcv15.flicker.FlickerActivity
 import com.technofreak.projetcv15.utils.backPress
+import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.synthetic.main.activity_d_h_gallery.nav_view
 import kotlinx.android.synthetic.main.activity_liked.*

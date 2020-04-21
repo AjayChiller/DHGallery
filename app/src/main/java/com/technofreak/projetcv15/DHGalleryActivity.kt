@@ -3,12 +3,9 @@ package com.technofreak.projetcv15
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -16,12 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.technofreak.projetcv15.adapter.DHGalleryAdapter
 import com.technofreak.projetcv15.camera.CameraActivity
-import com.technofreak.projetcv15.camera.DHGalleryViewModel
 import com.technofreak.projetcv15.flicker.FlickerActivity
 import com.technofreak.projetcv15.liked.LikedActivity
 import com.technofreak.projetcv15.utils.TopSpacingItemDecoration
 import com.technofreak.projetcv15.utils.backPress
 import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
+import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.synthetic.main.activity_d_h_gallery.*
 
