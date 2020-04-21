@@ -207,8 +207,8 @@ class MainActivity : AppCompatActivity() {
                 viewModel.videos.observe(this, Observer {
                     galleryAdapter.submitList(it)
                 })
-                galleryAdapter.setOnClickListener { image ,pos->
-                    startVideoPlayer(image.contentUri)
+                galleryAdapter.setOnClickListener { uri ,pos->
+                    startVideoPlayer(uri)
                 }
             }
             else {
@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity() {
                 viewModel.images.observe(this, Observer{
                     galleryAdapter.submitList(it)
                 })
-                galleryAdapter.setOnClickListener { image ,pos->
+                galleryAdapter.setOnClickListener { uri ,pos->
                     startViewPager(pos)
                 }
             }

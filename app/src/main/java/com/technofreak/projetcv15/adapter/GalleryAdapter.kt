@@ -15,8 +15,8 @@ import kotlinx.android.extensions.LayoutContainer
 
 class GalleryAdapter() :          ListAdapter<PhotoEntity, ImageViewHolder>(
     PhotoEntity.DiffCallback) {
-    private lateinit var onClick: (PhotoEntity, Int) -> Unit
-    fun setOnClickListener(onClick: (PhotoEntity, Int) -> Unit) {
+    private lateinit var onClick: (String, Int) -> Unit
+    fun setOnClickListener(onClick: (String, Int) -> Unit) {
         this.onClick = onClick
     }
 
@@ -26,7 +26,7 @@ class GalleryAdapter() :          ListAdapter<PhotoEntity, ImageViewHolder>(
         vh.containerView.setOnClickListener {
             val position = vh.adapterPosition
             val picture = getItem(position)
-            onClick(picture,position)
+            onClick(picture.contentUri,position)
         }
 
 
