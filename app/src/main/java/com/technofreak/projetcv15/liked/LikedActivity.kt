@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.technofreak.projetcv15.camera.CameraActivityViewModel
+import com.technofreak.projetcv15.camera.DHGalleryViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.technofreak.projetcv15.DHGalleryActivity
 import com.technofreak.projetcv15.MainActivity
@@ -29,13 +29,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 class LikedActivity : AppCompatActivity() {
-    private lateinit var viewModel: CameraActivityViewModel
+    private lateinit var viewModel: DHGalleryViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_liked)
         supportActionBar!!.setTitle("Liked")
         val navView: BottomNavigationView = nav_view
-       navView.selectedItemId=R.id.liked_menu
+        navView.selectedItemId=R.id.liked_menu
         navView.setOnNavigationItemSelectedListener() {
             val item=it.itemId
             when (item)
@@ -49,7 +49,7 @@ class LikedActivity : AppCompatActivity() {
 
         }
 
-        viewModel= ViewModelProvider(this).get(CameraActivityViewModel::class.java)
+        viewModel= ViewModelProvider(this).get(DHGalleryViewModel::class.java)
 
         val likedAdapter=DHGalleryAdapter ()
         val gallery=galleryliked

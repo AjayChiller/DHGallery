@@ -27,12 +27,12 @@ class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(ap
 
     }
 
-  fun funsearchText(searchtext:String)
+    fun funsearchText(searchtext:String)
     {
         if (isonnected())
-          viewModelScope.launch {
-            videosRepository.searchImages(searchtext)
-        }
+            viewModelScope.launch {
+                videosRepository.searchImages(searchtext)
+            }
         else
         {
             Toast.makeText(context,"No Network",Toast.LENGTH_SHORT).show()
@@ -82,4 +82,3 @@ class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(ap
 
 
 }
-

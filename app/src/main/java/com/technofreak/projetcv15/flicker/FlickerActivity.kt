@@ -32,19 +32,13 @@ import com.technofreak.projetcv15.DHGalleryActivity
 import com.technofreak.projetcv15.MainActivity
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.FlickerAdapter
-import com.technofreak.projetcv15.adapter.GalleryAdapter
 import com.technofreak.projetcv15.camera.CameraActivity
 import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.liked.LikedActivity
-import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.utils.backPress
-import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
-import kotlinx.android.synthetic.main.activity_d_h_gallery.*
 import kotlinx.android.synthetic.main.activity_flicker.*
 import kotlinx.android.synthetic.main.activity_flicker.nav_view
-import kotlinx.android.synthetic.main.flicker_image.*
-import kotlinx.android.synthetic.main.gallery_layout.*
 
 class FlickerActivity : AppCompatActivity() {
     private val viewModel: FlickerAcitvityViewModel by viewModels()
@@ -56,19 +50,31 @@ class FlickerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flicker)
 
-        supportActionBar!!.setDisplayShowHomeEnabled(true)
-        supportActionBar!!.setDisplayUseLogoEnabled(true)
         supportActionBar!!.setTitle("Flicker")
         nav_view.selectedItemId=R.id.flicker_menu
         nav_view.setOnNavigationItemSelectedListener() {
             val item=it.itemId
-            when (item)
+            if(item==R.id.gallery_menu)
             {
-                R.id.gallery_menu->     startActivity(Intent(this, MainActivity::class.java))
-                R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
-                R.id.dhgallery_menu->   startActivity(Intent(this, DHGalleryActivity::class.java))
-                R.id.liked_menu->       startActivity(Intent(this, LikedActivity::class.java))
+                startActivity(Intent(this, MainActivity::class.java))
             }
+            else if(item==R.id.camera_menu)
+            {
+                startActivity(Intent(this, CameraActivity::class.java))
+            }
+            else if(item==R.id.dhgallery_menu)
+            {
+                startActivity(Intent(this, DHGalleryActivity::class.java))
+            }
+            else if(item==R.id.liked_menu)
+            {
+                startActivity(Intent(this, LikedActivity::class.java))
+            }
+            else if(item==R.id.flicker_menu)
+            {
+                //startActivity(Intent(this,FlickerActivity::class.java))
+            }
+            //   ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true
         }
 
@@ -76,7 +82,7 @@ class FlickerActivity : AppCompatActivity() {
         val galleryAdapter = FlickerAdapter()
 
         galleryAdapter.setOnClickListener {
-           zoomImageFromThumb(it.url)
+            zoomImageFromThumb(it.url)
         }
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         flickerRecyclerView.addItemDecoration(
@@ -88,9 +94,9 @@ class FlickerActivity : AppCompatActivity() {
         flickerRecyclerView.adapter=galleryAdapter
 
         viewModel.flickerPhotos.observe(this, Observer<PagedList<FlickerPhoto>> { images ->
-          if(images.size>0)
-              search_photo.visibility=View.GONE
-           galleryAdapter.submitList(images)
+            if(images.size>0)
+                search_photo.visibility=View.GONE
+            galleryAdapter.submitList(images)
         })
     }
 
@@ -99,28 +105,28 @@ class FlickerActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.main_menu,menu)
 
         val searchItem: MenuItem = menu.findItem(R.id.action_search)
-            val searchView = MenuItemCompat.getActionView(searchItem) as SearchView
-            searchView.setOnCloseListener(object : SearchView.OnCloseListener {
-                override fun onClose(): Boolean {
-                    return true
-                }
-            })
-            val searchPlate = searchView.findViewById(androidx.appcompat.R.id.search_src_text) as EditText
-            searchPlate.hint = "Search here"
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-            Toast.makeText(applicationContext, query, Toast.LENGTH_SHORT).show()
-                    viewModel.funsearchText(query!!)
-                    return false
-                }
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    return false
-                }
-            })
+        val searchView = MenuItemCompat.getActionView(searchItem) as SearchView
+        searchView.setOnCloseListener(object : SearchView.OnCloseListener {
+            override fun onClose(): Boolean {
+                return true
+            }
+        })
+        val searchPlate = searchView.findViewById(androidx.appcompat.R.id.search_src_text) as EditText
+        searchPlate.hint = "Search here"
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                Toast.makeText(applicationContext, query, Toast.LENGTH_SHORT).show()
+                viewModel.funsearchText(query!!)
+                return false
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
 
-            val searchManager =
-                getSystemService(Context.SEARCH_SERVICE) as SearchManager
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        val searchManager =
+            getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -169,10 +175,10 @@ class FlickerActivity : AppCompatActivity() {
         currentAnimator = AnimatorSet().apply {
             play(
                 ObjectAnimator.ofFloat(
-                expandedImageView,
-                View.X,
-                startBounds.left,
-                finalBounds.left)
+                    expandedImageView,
+                    View.X,
+                    startBounds.left,
+                    finalBounds.left)
             ).apply {
                 with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top, finalBounds.top))
                 with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, 0f, 1f))
@@ -228,7 +234,7 @@ class FlickerActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-            backPress(this)
+        backPress(this)
     }
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -237,5 +243,4 @@ class FlickerActivity : AppCompatActivity() {
         nav_view.selectedItemId=R.id.flicker_menu
     }
 }
-
 

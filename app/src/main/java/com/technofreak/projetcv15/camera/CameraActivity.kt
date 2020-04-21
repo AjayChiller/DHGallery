@@ -23,6 +23,7 @@ import com.technofreak.projetcv15.DHGalleryActivity
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.databinding.ActivityCameraBinding
 import kotlinx.android.synthetic.main.activity_d_h_gallery.*
+import kotlinx.android.synthetic.main.image_input_dialog.view.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,13 +37,15 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
     private var lensMode = CameraX.LensFacing.BACK
     private lateinit var captureButton: ImageButton
     private lateinit var videoCapture: VideoCapture
-    private lateinit var viewModel: CameraActivityViewModel
+    private lateinit var viewModel: DHGalleryViewModel
     private lateinit var imageCapture: ImageCapture
     @SuppressLint("ClickableViewAccessibility", "RestrictedApi")
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
-        viewModel = ViewModelProvider(this).get(CameraActivityViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(DHGalleryViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera)
         viewFinder = binding.viewFinder
         captureButton = binding.captureButton
@@ -96,11 +99,8 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
         }.build()
         Log.i("Debug", "1")
 
-        // Build the viewfinder use case
         val preview = Preview(previewConfig)
-        // Every time the viewfinder is updated, recompute layout
         preview.setOnPreviewOutputUpdateListener {
-            // To update the SurfaceTexture, we have to remove it and re-add it
             val parent = viewFinder.parent as ViewGroup
             parent.removeView(viewFinder)
             parent.addView(viewFinder, 0)
@@ -195,8 +195,8 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
 
     fun get_Input(image_file: File) {
         val customLayout = LayoutInflater.from(this).inflate(R.layout.image_input_dialog, null)
-        val image_title: TextInputLayout = customLayout.findViewById(R.id.title)
-        val image_tags: TextInputLayout = customLayout.findViewById(R.id.tags)
+        val image_title: TextInputLayout = customLayout.title
+        val image_tags: TextInputLayout = customLayout.tags
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(customLayout)
             .setPositiveButton("Submit") { dialogInterface, _ ->
@@ -235,6 +235,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
         CameraX.unbindAll()
         viewFinder.post { startCamera() }
     }
+
     override fun onBackPressed() {
         super.onBackPressed()
         intent = Intent(this, DHGalleryActivity::class.java)

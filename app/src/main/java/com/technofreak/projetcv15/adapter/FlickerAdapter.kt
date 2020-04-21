@@ -1,5 +1,6 @@
 package com.technofreak.projetcv15.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,12 +28,10 @@ class FlickerAdapter() :  PagedListAdapter<FlickerPhoto, ImageViewHolder3>(
             val picture = getItem(position)
             onClick(picture!!)
         }
-
         return vh
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder3, position: Int) {
-
         val flickerPhoto = getItem(position)
         holder.pos=position
         holder.rootView.tag = flickerPhoto

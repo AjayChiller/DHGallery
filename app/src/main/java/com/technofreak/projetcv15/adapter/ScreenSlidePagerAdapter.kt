@@ -1,7 +1,6 @@
 package com.technofreak.projetcv15.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.model.PhotoEntity
-import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.extensions.LayoutContainer
 
 

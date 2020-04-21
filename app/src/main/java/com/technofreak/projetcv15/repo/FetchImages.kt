@@ -39,14 +39,12 @@ class FetchImages(val context : Context) {
                 MediaStore.Images.Media.DATE_TAKEN
             )
 
-
-
             val selection = null
 
             val selectionArgs = null
 
             val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
-           context.contentResolver.query(
+            context.contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 selection,

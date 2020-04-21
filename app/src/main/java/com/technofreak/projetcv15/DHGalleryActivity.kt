@@ -13,10 +13,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.technofreak.projetcv15.camera.CameraActivityViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.technofreak.projetcv15.adapter.DHGalleryAdapter
 import com.technofreak.projetcv15.camera.CameraActivity
+import com.technofreak.projetcv15.camera.DHGalleryViewModel
 import com.technofreak.projetcv15.flicker.FlickerActivity
 import com.technofreak.projetcv15.liked.LikedActivity
 import com.technofreak.projetcv15.utils.TopSpacingItemDecoration
@@ -26,7 +26,7 @@ import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
 import kotlinx.android.synthetic.main.activity_d_h_gallery.*
 
 class DHGalleryActivity : AppCompatActivity() {
-    private lateinit var viewModel: CameraActivityViewModel
+    private lateinit var viewModel: DHGalleryViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_d_h_gallery)
@@ -46,7 +46,7 @@ class DHGalleryActivity : AppCompatActivity() {
             return@setOnNavigationItemSelectedListener true
 
         }
-        viewModel= ViewModelProvider(this).get(CameraActivityViewModel::class.java)
+        viewModel= ViewModelProvider(this).get(DHGalleryViewModel::class.java)
         val dhGalleryAdapter = DHGalleryAdapter()
         val gallery=gallery
         gallery.layoutManager = LinearLayoutManager(this)

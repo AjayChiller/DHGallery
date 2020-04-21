@@ -6,11 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProviders
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.*
-import com.google.android.exoplayer2.util.Util
 import com.technofreak.projetcv15.R
 
 class VideoPlayerAvtivity : AppCompatActivity() {
@@ -37,10 +33,6 @@ class VideoPlayerAvtivity : AppCompatActivity() {
         }else{
             viewModel.initializePlayer(mediaUri)
         }
-
-       // playerView = findViewById(R.id.video_view)
-
-       // playerView?.player = viewModel.player
     }
 
 

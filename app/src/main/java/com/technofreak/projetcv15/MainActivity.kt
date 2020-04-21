@@ -191,8 +191,8 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
         menuInflater.inflate(R.menu.photo_video_menu, menu)
+        menuInflater.inflate(R.menu.main_menu, menu)
         return super.onCreateOptionsMenu(menu)
 
     }
@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity() {
             if (item.title == "Video" ) {
                 item.setIcon(R.drawable.ic_camera_alt_black_24dp)
                 item.title = "Photo"
-                viewModel.videos.observe(this, Observer<List<PhotoEntity>> {
+                viewModel.videos.observe(this, Observer {
                     galleryAdapter.submitList(it)
                 })
                 galleryAdapter.setOnClickListener { image ,pos->
@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity() {
 
                 item.setIcon(R.drawable.ic_videocam_black_24dp)
                 item.title = "Video"
-                viewModel.images.observe(this, Observer<List<PhotoEntity>> {
+                viewModel.images.observe(this, Observer{
                     galleryAdapter.submitList(it)
                 })
                 galleryAdapter.setOnClickListener { image ,pos->
@@ -223,7 +223,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        else if (item!!.title == "List") {
+        else if (item.title == "List") {
                     binding.gallery.layoutManager = LinearLayoutManager(this)
                     item.title = "Grid"
                 }

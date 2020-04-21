@@ -17,13 +17,12 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
 class VideoPlayerViewModel  (application: Application) : AndroidViewModel(application) {
-    private val BANDWIDTH_METER = DefaultBandwidthMeter()
     val context=application.baseContext
 
     var playbackPosition: Long = 0
     var currentWindow: Int = 0
     var playWhenReady = true
-    public lateinit var player: SimpleExoPlayer
+    lateinit var player: SimpleExoPlayer
     var componentListener: ComponentListener? = null
      fun initializePlayer(uri: String) {
         if (uri.isEmpty()) {
@@ -78,13 +77,6 @@ class VideoPlayerViewModel  (application: Application) : AndroidViewModel(applic
         playWhenReady = player.playWhenReady
         player.setPlayWhenReady(false)
         player.getPlaybackState()
-
-            // player.removeListener(componentListener)
-        //player.setVideoListener(null)
-        //player.removeAnalyticsListener(componentListener)
-        //player.removeAnalyticsListener(componentListener)
-        //player.release()
-        Log.i("DDDD","  "+playbackPosition)
     }
 
 

@@ -18,7 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.ScreenSlidePagerAdapter
-import com.technofreak.projetcv15.camera.CameraActivityViewModel
+import com.technofreak.projetcv15.camera.DHGalleryViewModel
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
@@ -56,7 +56,7 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
 
         val isDHGallery = intent.getBooleanExtra("dhgallery", false)
         if (isDHGallery == true) {
-            val dhgalleryviewModel: CameraActivityViewModel by viewModels()
+            val dhgalleryviewModel: DHGalleryViewModel by viewModels()
 
 
             dhgalleryviewModel.allPhotos.observe(this, Observer<List<PhotoEntity>> { images ->

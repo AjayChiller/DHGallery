@@ -18,4 +18,3 @@ data class PhotoResponse(
     val title: String
 )
 
-
