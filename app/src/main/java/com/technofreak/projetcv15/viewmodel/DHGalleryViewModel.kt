@@ -1,4 +1,4 @@
-package com.technofreak.projetcv15.camera
+package com.technofreak.projetcv15.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -27,13 +27,13 @@ class DHGalleryViewModel (application: Application) : AndroidViewModel(applicati
     }
 
     fun insert(photoEntity: PhotoEntity) = viewModelScope.launch(Dispatchers.IO) {
-       try {
-           photoRepository.insert(photoEntity)
-       }
-       catch (e:Exception)
-       {
-           Log.i("DDDD","INSERT FAILED")
-       }
+        try {
+            photoRepository.insert(photoEntity)
+        }
+        catch (e:Exception)
+        {
+            Log.i("DDDD","INSERT FAILED")
+        }
     }
 
     fun update(photoEntity: PhotoEntity) = viewModelScope.launch(Dispatchers.IO) {
