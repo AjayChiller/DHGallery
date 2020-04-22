@@ -1,4 +1,4 @@
-package com.technofreak.projetcv15.flicker.cachedb
+package com.technofreak.projetcv15.database.cachedb
 
 import android.content.Context
 import androidx.paging.DataSource

@@ -1,11 +1,10 @@
-package com.technofreak.projetcv15.viewpager
+package com.technofreak.projetcv15.ui
 
 import ZoomOutPageTransformer
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +18,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.ScreenSlidePagerAdapter
 import com.technofreak.projetcv15.model.PhotoEntity
-import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
 import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
 import kotlinx.android.synthetic.main.activity_screen_slide.*
@@ -55,14 +53,23 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
          screenSlidePagerAdapter = ScreenSlidePagerAdapter(this)
 
         val isDHGallery = intent.getBooleanExtra("dhgallery", false)
-        if (isDHGallery == true) {
+        if (isDHGallery) {
             val dhgalleryviewModel: DHGalleryViewModel by viewModels()
 
-
-            dhgalleryviewModel.allPhotos.observe(this, Observer<List<PhotoEntity>> { images ->
-                screenSlidePagerAdapter.setItem(images)
-                screenSlidePagerAdapter.notifyDataSetChanged()
-            })
+            val isLikeGallery = intent.getBooleanExtra("likeGallery", false)
+            if(isLikeGallery) {
+                dhgalleryviewModel.likedPhotos.observe(this, Observer { images ->
+                    screenSlidePagerAdapter.setItem(images)
+                    screenSlidePagerAdapter.notifyDataSetChanged()
+                })
+            }
+            else
+            {
+                dhgalleryviewModel.allPhotos.observe(this, Observer{ images ->
+                    screenSlidePagerAdapter.setItem(images)
+                    screenSlidePagerAdapter.notifyDataSetChanged()
+                })
+            }
                 viewPager.adapter = screenSlidePagerAdapter
                 setInitialPos()
                 var doubleClickLastTime = 0L
@@ -82,7 +89,7 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
                             layout.toast_like_button.startAnimation(toastin)
                         }
                         doubleClickLastTime = 0
-                        dhgalleryviewModel.update2(image.id, image.liked)
+                        dhgalleryviewModel.updateLike(image.id, image.liked)
                     } else {
                         doubleClickLastTime = System.currentTimeMillis()
                     }
@@ -97,7 +104,6 @@ class ScreenSlidePagerActivity : AppCompatActivity() {
         }
 
         else {
-
             val galleryviewModel: MainActivityViewModel by viewModels()
             galleryviewModel.images.observe(this, Observer<List<PhotoEntity>> { images ->
                 screenSlidePagerAdapter.setItem(images)

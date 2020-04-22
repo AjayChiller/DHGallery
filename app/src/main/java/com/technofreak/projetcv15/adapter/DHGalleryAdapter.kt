@@ -65,7 +65,6 @@ class DHGalleryAdapter :    ListAdapter<PhotoEntity, ImageViewHolder2>(
             notifyDataSetChanged()
         }
 
-        Log.i("DDDDT","  "+photoEntity.displayName)
         val uri=photoEntity.contentUri
         val index=uri.lastIndexOf(".")
         if (index > 0 && uri.substring(index) == ".mp4" )

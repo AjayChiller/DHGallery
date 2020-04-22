@@ -2,8 +2,7 @@ package com.technofreak.projetcv15.utils
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.ContextCompat.startActivity
-import com.technofreak.projetcv15.MainActivity
+import com.technofreak.projetcv15.ui.MainActivity
 
 fun backPress(context: Context){
     val  intent = Intent(context, MainActivity::class.java)

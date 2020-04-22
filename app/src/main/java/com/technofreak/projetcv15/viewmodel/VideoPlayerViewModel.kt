@@ -1,8 +1,7 @@
-package com.technofreak.projetcv15.videoplayer
+package com.technofreak.projetcv15.viewmodel
 
 import android.app.Application
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
@@ -15,6 +14,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.technofreak.projetcv15.utils.ComponentListener
 
 class VideoPlayerViewModel  (application: Application) : AndroidViewModel(application) {
     val context=application.baseContext
@@ -38,38 +38,29 @@ class VideoPlayerViewModel  (application: Application) : AndroidViewModel(applic
                 DefaultTrackSelector(adaptiveTrackSelectionFactory),
                 DefaultLoadControl()
             )
-
             player.addListener(componentListener)
-            player.addAnalyticsListener(componentListener)
             player.addAnalyticsListener(componentListener)
         }
 
 
-
         player.playWhenReady = playWhenReady
         player.seekTo(currentWindow, playbackPosition)
-
-
         val firstSource = getMediaSource(uri)
         player.prepare(firstSource, true, false)
     }
 
     fun playerset()
-    { player.setPlayWhenReady(true);
-        player.getPlaybackState();
-
+    {
+        player.setPlayWhenReady(true)
+        player.getPlaybackState()
         player.seekTo(currentWindow, playbackPosition)
     }
 
     fun getMediaSource(uri : String):MediaSource{
-        val dataSourceFactory = DefaultDataSourceFactory(context, Util.getUserAgent(getApplication(),"DGGallery"));
+        val dataSourceFactory = DefaultDataSourceFactory(context, Util.getUserAgent(getApplication(),"DGGallery"))
         return ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource((Uri.parse(uri)))
     }
 
-    fun isPlayerInitialized():Boolean
-    {
-        return !::player.isInitialized
-    }
 
     fun releasePlayer() {
         playbackPosition = player.currentPosition

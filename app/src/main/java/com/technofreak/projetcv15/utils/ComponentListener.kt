@@ -1,4 +1,4 @@
-package com.technofreak.projetcv15.videoplayer
+package com.technofreak.projetcv15.utils
 
 import android.util.Log
 

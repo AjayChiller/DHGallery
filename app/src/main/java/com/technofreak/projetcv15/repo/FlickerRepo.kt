@@ -3,7 +3,7 @@ package com.technofreak.projetcv15.repo
 
 import android.util.Log
 import androidx.paging.LivePagedListBuilder
-import com.technofreak.projetcv15.flicker.cachedb.FlickersDatabase
+import com.technofreak.projetcv15.database.cachedb.FlickersDatabase
 import com.technofreak.projetcv15.flicker.networking.loadPhotos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -1,9 +1,11 @@
-package com.technofreak.projetcv15.camera
+package com.technofreak.projetcv15.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
-import com.technofreak.projetcv15.R
+import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -11,19 +13,20 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
-import com.technofreak.projetcv15.DHGalleryActivity
-import com.technofreak.projetcv15.model.PhotoEntity
+import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.databinding.ActivityCameraBinding
+import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
+import kotlinx.android.synthetic.main.activity_camera.*
 import kotlinx.android.synthetic.main.image_input_dialog.view.*
 import java.io.File
 import java.util.concurrent.Executors
-
 
 
 class CameraActivity : AppCompatActivity() ,LifecycleOwner {
@@ -34,10 +37,13 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
     private lateinit var videoCapture: VideoCapture
     private lateinit var viewModel: DHGalleryViewModel
     private lateinit var imageCapture: ImageCapture
+    private lateinit var preview:Preview
+    private lateinit var sharedPref :SharedPreferences
+    private lateinit var curentFile:File
+    private var autoSave =0
+
     @SuppressLint("ClickableViewAccessibility", "RestrictedApi")
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
         viewModel = ViewModelProvider(this).get(DHGalleryViewModel::class.java)
@@ -59,7 +65,6 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
             photoCapture()
         }
 
-
         binding.cameraMode.setOnClickListener {
 
             if (camMode) {
@@ -69,7 +74,6 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 captureButton.setOnTouchListener { _, event ->
                     videoCapture(event)
                 }
-                startCamera()
             } else {
                 camMode = true
                 binding.cameraMode.background = getDrawable(R.drawable.ic_videocam_black_24dp)
@@ -77,50 +81,72 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 captureButton.setOnClickListener {
                     photoCapture()
                 }
-                startCamera()
             }
         }
+
         methodWithPermissions()
 
-    }//end of oncreate
+
+       sharedPref=this.getPreferences(Context.MODE_PRIVATE) ?: return
+        autoSave = sharedPref.getInt("AUTO_SAVE", 0)
+        if(autoSave==0)
+            binding.autosave.background=getDrawable(R.drawable.ic_autosaveoff_black_24dp)
+        else
+
+            binding.autosave.background=getDrawable(R.drawable.autosaveon_24dp)
+        binding.autosave.setOnClickListener {
+            updateAutoSaveUI(autoSave)
+        }
+
+
+
+
+    }
+
 
 
 
     private val executor = Executors.newSingleThreadExecutor()
     @SuppressLint("RestrictedApi", "ClickableViewAccessibility")
     private fun startCamera() {
+        val ratio = AspectRatio.RATIO_16_9
         val previewConfig = PreviewConfig.Builder().apply {
             setLensFacing(lensMode)
+            setTargetAspectRatio(ratio)
         }.build()
         Log.i("Debug", "1")
-
-        val preview = Preview(previewConfig)
+        preview = Preview(previewConfig)
         preview.setOnPreviewOutputUpdateListener {
             val parent = viewFinder.parent as ViewGroup
             parent.removeView(viewFinder)
             parent.addView(viewFinder, 0)
             viewFinder.surfaceTexture = it.surfaceTexture
         }
-        CameraX.unbindAll()
-        if (camMode) {
-            val imageCaptureConfig = ImageCaptureConfig.Builder()
-                .build()
-            imageCapture = ImageCapture(imageCaptureConfig)
-            Toast.makeText(this, "Photo Mode", Toast.LENGTH_SHORT).show()
-            CameraX.bindToLifecycle(this, preview, imageCapture)
-        } else {
-            val videoCaptureConfig = VideoCaptureConfig.Builder().apply {
+        if(preview!=null)
+             CameraX.unbindAll()
+
+            val imageCaptureConfig = ImageCaptureConfig.Builder().apply {
+                setTargetAspectRatio(ratio)
                 setTargetRotation(viewFinder.display.rotation)
+                setLensFacing(lensMode)
+            }.build()
+            imageCapture = ImageCapture(imageCaptureConfig)
+
+
+            val videoCaptureConfig = VideoCaptureConfig.Builder().apply {
+                setTargetAspectRatio(ratio)
+                setTargetRotation(viewFinder.display.rotation)
+                setLensFacing(lensMode)
+
             }.build()
             videoCapture = VideoCapture(videoCaptureConfig)
-            Toast.makeText(this, "Video Mode", Toast.LENGTH_SHORT).show()
-            CameraX.bindToLifecycle(this, preview, videoCapture)
-        }
+            CameraX.bindToLifecycle(this, preview,imageCapture, videoCapture)
+
     }
 
     @SuppressLint("RestrictedApi")
     fun videoCapture(event: MotionEvent): Boolean {
-        Log.i("DDDDx", "9")
+        binding.cameraUi.visibility=View.GONE
         val fileLoc = File(
             externalMediaDirs.first(),
             "${System.currentTimeMillis()}.mp4"
@@ -131,11 +157,12 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 executor,
                 object : VideoCapture.OnVideoSavedListener {
                     override fun onVideoSaved(file: File) {
-                        Log.i("tag", "Video File : $file")
+                        curentFile=file
                         viewFinder.post {
-                            get_Input(file)
-                            Toast.makeText(baseContext, " " + file.name, Toast.LENGTH_SHORT).show()
-                        }
+                            if(autoSave==0)
+                                previewViewer()
+                            else
+                                autoSave()}
                     }
 
                     override fun onError(
@@ -149,8 +176,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
 
         } else if (event.action == MotionEvent.ACTION_UP) {
             videoCapture.stopRecording()
-            Toast.makeText(this, "STOPED", Toast.LENGTH_SHORT).show()
-            Log.i("tag", "Video File stopped")
+            binding.cameraUi.visibility=ConstraintLayout.VISIBLE
         }
         return false
     }
@@ -169,7 +195,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                     imageCaptureError: ImageCapture.ImageCaptureError,
                     message: String,
                     exc: Throwable?
-                ) {
+                )  {
                     val msg = "Photo capture failed: $message"
                     Log.e("CameraXApp", msg, exc)
                     viewFinder.post {
@@ -178,27 +204,71 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 }
 
                 override fun onImageSaved(file: File) {
-                    val msg = "Photo capture succeeded: ${file.absolutePath}"
-                    Log.d("CameraXApp", msg)
+                    curentFile=file
                     viewFinder.post {
-                        get_Input(file)
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                        if(autoSave==0)
+                          previewViewer()
+                        else
+                            autoSave()
                     }
                 }
             })
     }
 
-    fun get_Input(image_file: File) {
+    fun previewViewer() {
+        val file=curentFile
+       binding.previewContainer.visibility=View.VISIBLE
+        val uri=file.absolutePath
+        val index=uri.lastIndexOf(".")
+        if (index > 0 && uri.substring(index) == ".mp4" ) {
+            binding.playButton.visibility = View.VISIBLE
+            binding.playButton.setOnClickListener {
+                val intent = Intent(this, VideoPlayerAvtivity::class.java)
+                intent.putExtra("uri", uri)
+                startActivity(intent)
+            }
+        }
+        else
+            binding.playButton.visibility = View.GONE
+
+        binding.previewImage.setImageURI(Uri.parse(uri))
+        binding.previewSave.setOnClickListener {
+            openSaveDialog()
+        }
+        binding.previewClose.setOnClickListener {
+            Log.i("DDDD","DELETED1")
+            file.delete()
+            binding.previewContainer.visibility=View.GONE
+        }
+
+        return
+    }
+
+    fun autoSave(){
+        val file=curentFile
+        val photoEntity = PhotoEntity(
+            0,
+            "Unamed",
+            file.lastModified(),
+            file.absolutePath
+        )
+        viewModel.insert(photoEntity)
+    }
+
+
+
+    fun openSaveDialog(){
+        val file=curentFile
         val customLayout = LayoutInflater.from(this).inflate(R.layout.image_input_dialog, null)
         val image_title: TextInputLayout = customLayout.title
         val image_tags: TextInputLayout = customLayout.tags
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(customLayout)
-            .setPositiveButton("Submit") { dialogInterface, _ ->
+            .setPositiveButton("Save") { dialogInterface, _ ->
                 val title = image_title.editText!!.text.toString()
                 val tags = image_tags.editText!!.text.toString()
-                val uri = image_file.absolutePath
-                val date = image_file.lastModified()
+                val uri = file.absolutePath
+                val date = file.lastModified()
                 val photoEntity = PhotoEntity(
                     0,
                     title,
@@ -206,18 +276,40 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                     uri,
                     tags
                 )
-                Log.i("DDDD"," "+photoEntity.contentUri)
                 viewModel.insert(photoEntity)
                 dialogInterface.dismiss()
-                Toast.makeText(this, title, Toast.LENGTH_SHORT).show()
+                binding.previewContainer.visibility=View.GONE
 
             }
             .setNegativeButton("Cancel") { dialogInterface, _ ->
-                image_file.delete()
+                Log.i("DDDD","DELETED2")
+                file.delete()
                 dialogInterface.cancel()
+                binding.previewContainer.visibility=View.GONE
             }
         builder.show()
-        return
+    }
+
+
+    private fun updateAutoSaveUI(_autosave: Int) {
+        if (_autosave == 1)
+        {
+            autoSave=0
+            Toast.makeText(this,"AUTO SAVE OFF",Toast.LENGTH_SHORT).show()
+            binding.autosave.background=getDrawable(R.drawable.ic_autosaveoff_black_24dp)
+        }
+        else
+        {
+            autoSave=1
+            Toast.makeText(this,"AUTO SAVE ON",Toast.LENGTH_SHORT).show()
+            binding.autosave.background=getDrawable(R.drawable.autosaveon_24dp)
+
+        }
+        with(sharedPref.edit()) {
+            putInt("AUTO_SAVE", autoSave)
+            commit()
+        }
+
     }
 
     //Quick permission library
@@ -227,27 +319,38 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
         }
 
     private fun bindCameraUseCases() {
-        CameraX.unbindAll()
+        if(preview!=null)
+            CameraX.unbindAll()
         viewFinder.post { startCamera() }
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        intent = Intent(this, DHGalleryActivity::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
+        if(binding.previewContainer.visibility==View.GONE)
+        {
+            intent = Intent(this, DHGalleryActivity::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
+        else {
+            curentFile.delete()
+            binding.previewContainer.visibility=View.GONE
+        }
     }
 
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        methodWithPermissions()
-        startCamera()
+
+
+    override fun onDestroy() {
+        if(binding.previewContainer.visibility==View.VISIBLE) {
+            curentFile.delete()
+        }
+        super.onDestroy()
     }
 
     companion object {
         private var camMode = true
     }
+
 
 
 }

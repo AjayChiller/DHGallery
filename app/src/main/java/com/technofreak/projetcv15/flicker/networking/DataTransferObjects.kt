@@ -1,7 +1,7 @@
 
 package com.technofreak.projetcv15.flicker.networking
 
-import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
+import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 
 var method= "flickr.photos.search"
 var api_key="b7578c6d6eeb50e755c8b2616cb2d91a"

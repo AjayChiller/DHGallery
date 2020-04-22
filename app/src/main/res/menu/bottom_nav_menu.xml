@@ -14,10 +14,7 @@
         android:id="@+id/camera_menu"
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />
-    <item
-        android:id="@+id/liked_menu"
-        android:icon="@drawable/ic_toast_like"
-        android:title="@string/like" />
+
     <item
         android:id="@+id/flicker_menu"
         android:icon="@drawable/ic_cloud_download_black_24dp"

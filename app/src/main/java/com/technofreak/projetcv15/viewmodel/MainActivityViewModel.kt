@@ -13,8 +13,6 @@ class MainActivityViewModel ( application: Application) : AndroidViewModel(appli
     val videos=galleryReop.getVideos()
     fun loadVideos()=galleryReop.loadVideos()
 
-
-
 }
 
 

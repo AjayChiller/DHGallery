@@ -36,17 +36,8 @@ class DHGalleryViewModel (application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun update(photoEntity: PhotoEntity) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            photoRepository.liketoggle(photoEntity)
-        }
-        catch (e:Exception)
-        {
-            Log.i("DDDD","UPDATE FAILED")
-        }
-    }
 
-    fun update2(id:Long,like:Boolean) = viewModelScope.launch(Dispatchers.IO) {
+    fun updateLike(id:Long,like:Boolean) = viewModelScope.launch(Dispatchers.IO) {
         try {
             photoRepository.likeupdate(id,like)
         }

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -15,33 +16,41 @@
         android:roundIcon="@drawable/ic_app_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".videoplayer.VideoPlayerAvtivity"
+
+        <activity android:name=".ui.VideoPlayerAvtivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
-            android:name=".flicker.FlickerActivity"
-            android:launchMode="singleInstance" />
+            android:name=".ui.FlickerActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            />
         <activity
-            android:name=".liked.LikedActivity"
-            android:launchMode="singleInstance" />
+            android:name=".ui.DHGalleryActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            />
         <activity
-            android:name=".DHGalleryActivity"
-            android:launchMode="singleInstance" />
-        <activity
-            android:name=".MainActivity"
-            android:launchMode="singleInstance">
+            android:name=".ui.MainActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".viewpager.ScreenSlidePagerActivity"
+            android:name=".ui.ScreenSlidePagerActivity"
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".camera.CameraActivity"
+            android:name=".ui.CameraActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:screenOrientation="portrait"/>
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts"
+            />
     </application>
 
 </manifest>

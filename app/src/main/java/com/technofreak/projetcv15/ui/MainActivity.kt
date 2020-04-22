@@ -1,16 +1,12 @@
-package com.technofreak.projetcv15
+package com.technofreak.projetcv15.ui
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -23,19 +19,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.GalleryAdapter
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
-import com.technofreak.projetcv15.camera.CameraActivity
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.databinding.ActivityMainBinding
-import com.technofreak.projetcv15.flicker.FlickerActivity
-import com.technofreak.projetcv15.liked.LikedActivity
-import com.technofreak.projetcv15.videoplayer.VideoPlayerAvtivity
 
 
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
-import com.technofreak.projetcv15.viewpager.ScreenSlidePagerActivity
-import kotlinx.android.synthetic.main.activity_camera.*
 import kotlinx.android.synthetic.main.activity_main.nav_view
 
 
@@ -50,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar!!.setTitle("Gallery")
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         //BOTTOM NAVIGATION
         nav_view.selectedItemId=R.id.gallery_menu
@@ -61,7 +51,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.flicker_menu->     startActivity(Intent(this, FlickerActivity::class.java))
                 R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
                 R.id.dhgallery_menu->   startActivity(Intent(this, DHGalleryActivity::class.java))
-                R.id.liked_menu->       startActivity(Intent(this, LikedActivity::class.java))
             }
             return@setOnNavigationItemSelectedListener true
         }
@@ -90,6 +79,7 @@ class MainActivity : AppCompatActivity() {
             binding.welcomeView.visibility = View.VISIBLE
 
         } else {
+
             showImages()
         }
     }
@@ -135,15 +125,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
     private fun showImages() {
+        viewModel.loadVideos()
+        viewModel.loadImages()
         binding.navView.visibility=View.VISIBLE
         binding.welcomeView.visibility = View.GONE
         binding.permissionRationaleView.visibility = View.GONE
-
     }
 
 
     private fun showNoAccess() {
-
         binding.welcomeView.visibility = View.GONE
         binding.permissionRationaleView.visibility = View.VISIBLE
     }
@@ -199,45 +189,45 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
-        if (item!!.itemId==R.id.photo_video)
+
+        when(item!!.title)
         {
-            if (item.title == "Video" ) {
-                item.setIcon(R.drawable.ic_camera_alt_black_24dp)
-                item.title = "Photo"
-                viewModel.videos.observe(this, Observer {
-                    galleryAdapter.submitList(it)
-                })
-                galleryAdapter.setOnClickListener { uri ,pos->
-                    startVideoPlayer(uri)
-                }
-            }
-            else {
+            "Video" ->  {
+                            item.setIcon(R.drawable.ic_camera_alt_black_24dp)
+                            item.title = "Photo"
+                            viewModel.videos.observe(this, Observer {
+                                galleryAdapter.submitList(it)
+                                 })
+                            galleryAdapter.setOnClickListener { uri ,pos->
+                                startVideoPlayer(uri)
+                                 }
+                        }
+            "Photo" -> {
 
-                item.setIcon(R.drawable.ic_videocam_black_24dp)
-                item.title = "Video"
-                viewModel.images.observe(this, Observer{
-                    galleryAdapter.submitList(it)
-                })
-                galleryAdapter.setOnClickListener { uri ,pos->
-                    startViewPager(pos)
-                }
-            }
+                            item.setIcon(R.drawable.ic_videocam_black_24dp)
+                            item.title = "Video"
+                            viewModel.images.observe(this, Observer{
+                                galleryAdapter.submitList(it)
+                                    })
+                            galleryAdapter.setOnClickListener { uri ,pos->
+                                 startViewPager(pos)
+                                 }
+                        }
+            "List" -> {
+                            binding.gallery.layoutManager = LinearLayoutManager(this)
+                            item.title = "Grid"
+                            item.setIcon(R.drawable.grid_view_24dp)
+                        }
+            "Grid" -> {
+                            binding.gallery.layoutManager = GridLayoutManager(this,3)
+                            item.title = "List"
+                            item.setIcon(R.drawable.list_view_24dp)
+                      }
         }
-        else if (item.title == "List") {
-                    binding.gallery.layoutManager = LinearLayoutManager(this)
-                    item.title = "Grid"
-                }
-        else{
-                    binding.gallery.layoutManager = GridLayoutManager(this,3)
-                    item.title = "List"
-                }
-
-
-        return super.onOptionsItemSelected(item)
+       return super.onOptionsItemSelected(item)
             }
     override fun onBackPressed() {
-        super.onBackPressed()
-       val home = Intent(Intent.ACTION_MAIN)
+        val home = Intent(Intent.ACTION_MAIN)
         home.addCategory(Intent.CATEGORY_HOME)
         home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(home)

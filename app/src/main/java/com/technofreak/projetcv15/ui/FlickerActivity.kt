@@ -1,4 +1,4 @@
-package com.technofreak.projetcv15.flicker
+package com.technofreak.projetcv15.ui
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -28,13 +28,10 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.technofreak.projetcv15.DHGalleryActivity
-import com.technofreak.projetcv15.MainActivity
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.FlickerAdapter
-import com.technofreak.projetcv15.camera.CameraActivity
-import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
-import com.technofreak.projetcv15.liked.LikedActivity
+import com.technofreak.projetcv15.viewmodel.FlickerAcitvityViewModel
+import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.utils.backPress
 import kotlinx.android.synthetic.main.activity_flicker.*
@@ -54,25 +51,11 @@ class FlickerActivity : AppCompatActivity() {
         nav_view.selectedItemId=R.id.flicker_menu
         nav_view.setOnNavigationItemSelectedListener() {
             val item=it.itemId
-            if(item==R.id.gallery_menu)
+            when (item)
             {
-                startActivity(Intent(this, MainActivity::class.java))
-            }
-            else if(item==R.id.camera_menu)
-            {
-                startActivity(Intent(this, CameraActivity::class.java))
-            }
-            else if(item==R.id.dhgallery_menu)
-            {
-                startActivity(Intent(this, DHGalleryActivity::class.java))
-            }
-            else if(item==R.id.liked_menu)
-            {
-                startActivity(Intent(this, LikedActivity::class.java))
-            }
-            else if(item==R.id.flicker_menu)
-            {
-                //startActivity(Intent(this,FlickerActivity::class.java))
+                R.id.gallery_menu->     startActivity(Intent(this, MainActivity::class.java))
+                R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
+                R.id.dhgallery_menu->   startActivity(Intent(this, DHGalleryActivity::class.java))
             }
             //   ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true
@@ -233,7 +216,6 @@ class FlickerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         backPress(this)
     }
     override fun onNewIntent(intent: Intent?) {

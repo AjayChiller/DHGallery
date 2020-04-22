@@ -1,4 +1,4 @@
-package com.technofreak.projetcv15.flicker
+package com.technofreak.projetcv15.viewmodel
 
 import android.app.Application
 import android.content.Context
@@ -6,7 +6,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.widget.Toast
 import androidx.lifecycle.*
-import com.technofreak.projetcv15.flicker.cachedb.getDatabase
+import com.technofreak.projetcv15.database.cachedb.getDatabase
 import com.technofreak.projetcv15.repo.FlickerRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,11 @@ class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(ap
     private val context=application
 
 
-    private val videosRepository = FlickerRepo(getDatabase(application))
+    private val videosRepository = FlickerRepo(
+        getDatabase(
+            application
+        )
+    )
 
     val flickerPhotos = videosRepository.flickerphotos
 

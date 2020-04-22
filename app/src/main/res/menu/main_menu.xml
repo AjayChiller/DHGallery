@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+  >
 
     <item
         android:id="@+id/change_layout"
         android:title="List"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        android:icon="@drawable/list_view_24dp"/>
 
 </menu>
 

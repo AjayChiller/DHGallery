@@ -1,17 +1,16 @@
 package com.technofreak.projetcv15.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.technofreak.projetcv15.R
-import com.technofreak.projetcv15.flicker.cachedb.FlickerPhoto
+import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.flicker_image.view.*
 
 class FlickerAdapter() :  PagedListAdapter<FlickerPhoto, ImageViewHolder3>(
     FlickerPhoto.DiffCallback) {
@@ -48,7 +47,7 @@ class FlickerAdapter() :  PagedListAdapter<FlickerPhoto, ImageViewHolder3>(
 class ImageViewHolder3( override val containerView: View) :    RecyclerView.ViewHolder(containerView),LayoutContainer {
     val rootView = containerView
     var pos: Int? = null
-    val imageView: ImageView = containerView.findViewById(R.id.imageeee)
+    val imageView: ImageView = containerView.image_view
 
 }
 

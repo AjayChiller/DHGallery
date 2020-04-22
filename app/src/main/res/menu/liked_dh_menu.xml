@@ -5,11 +5,11 @@
     tools:ignore="MissingDefaultResource">
 
     <item
-        android:id="@+id/photo_video"
-        android:icon="@drawable/ic_videocam_black_24dp"
+        android:id="@+id/liked_option"
+        android:icon="@drawable/ic_like_black"
         app:showAsAction="always"
-        android:visible="true"
-        android:title="Video" />
+        android:title="DH" />
+
 </menu>
 
 

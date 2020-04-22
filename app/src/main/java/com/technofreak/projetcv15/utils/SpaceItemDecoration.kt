@@ -11,13 +11,9 @@ class SpaceItemDecoration(val top: Int,val bottom: Int,val right: Int,val left: 
                                 parent: RecyclerView, state: RecyclerView.State) {
         outRect.left = left
         outRect.right = right
-        outRect.bottom = bottom
+       // outRect.bottom = bottom
+        outRect.top = top
 
-        // Add top margin only for the top items to avoid double space between items
-        if (parent.getChildLayoutPosition(view) == 0 ) {
-            outRect.top = top
-        } else {
-            outRect.top = 0
-        }
+
     }
 }

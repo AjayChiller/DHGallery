@@ -15,12 +15,8 @@ private const val TAG = "FetchImages"
 
 class FetchImages(val context : Context) {
 
-    init {
-        loadImages()
-    }
     private val _images = MutableLiveData<List<PhotoEntity>>()
     val images: LiveData<List<PhotoEntity>> get() = _images
-
 
     fun loadImages() {
         GlobalScope.launch {
@@ -83,7 +79,6 @@ class FetchImages(val context : Context) {
                 }
             }
         }
-
         return images
     }
 
@@ -97,7 +92,6 @@ class FetchImages(val context : Context) {
             return instance as FetchImages
         }
     }
-
 }
 
 

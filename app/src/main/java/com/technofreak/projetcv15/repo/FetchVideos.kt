@@ -14,9 +14,7 @@ import kotlinx.coroutines.withContext
 private const val TAG = "FetchVideos"
 
 class FetchVideos(val context : Context) {
-    init{
-        loadVideos()
-    }
+
 
     private val _videos = MutableLiveData<List<PhotoEntity>>()
     val videos: LiveData<List<PhotoEntity>> get() = _videos

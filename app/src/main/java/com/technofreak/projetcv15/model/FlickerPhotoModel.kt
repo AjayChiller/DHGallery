@@ -1,4 +1,4 @@
-package com.technofreak.projetcv15.flicker
+package com.technofreak.projetcv15.model
 
 //The outermost wrapper for the api response
 data class FlickerPhotoModel(

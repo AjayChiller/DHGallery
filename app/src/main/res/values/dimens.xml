@@ -21,11 +21,14 @@
     <dimen name="padding_margin_16">16dp</dimen>
     <dimen name="card_elev">10dp</dimen>
     <dimen name="card_corner_radi">2dp</dimen>
-    <dimen name="tags_txt_size">15sp</dimen>
-    <dimen name="title_txt_size">19sp</dimen>
+    <dimen name="tags_txt_size">12sp</dimen>
+    <dimen name="title_txt_size">15sp</dimen>
     <dimen name="switchcam_margin">20dp</dimen>
     <dimen name="switchcam_size">30dp</dimen>
     <dimen name="play_button">70dp</dimen>
     <dimen name="small_play_btn">30dp</dimen>
     <dimen name="play_btn_pdding">50dp</dimen>
+    <dimen name="blog_pad_LR">10dp</dimen>
+    <dimen name="blog_pad_top">5dp</dimen>
+    <dimen name="blog_pad_bottom">5dp</dimen>
 </resources>

@@ -1,13 +1,16 @@
-package com.technofreak.projetcv15.videoplayer
+package com.technofreak.projetcv15.ui
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import com.google.android.exoplayer2.ui.PlayerView
 import com.technofreak.projetcv15.R
+import com.technofreak.projetcv15.utils.ComponentListener
+import com.technofreak.projetcv15.viewmodel.VideoPlayerViewModel
 
 class VideoPlayerAvtivity : AppCompatActivity() {
 
@@ -20,16 +23,17 @@ class VideoPlayerAvtivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_player_avtivity)
-       // mediaUri = "/storage/emulated/0/Android/media/com.technofreak.projetcv15/1586957015217.mp4"
 
 
         mediaUri = intent.getStringExtra("uri")
 
-        viewModel.componentListener = ComponentListener()
+        viewModel.componentListener =
+            ComponentListener()
         if(mediaUri.isEmpty())
         {
-
+            Toast.makeText(this,"Video Cant be played",Toast.LENGTH_SHORT).show()
             Log.i("DDDDD"," ----emptyyyyyyy----" )
+            onBackPressed()
         }else{
             viewModel.initializePlayer(mediaUri)
         }
@@ -48,7 +52,6 @@ class VideoPlayerAvtivity : AppCompatActivity() {
     public override fun onPause() {
         super.onPause()
             viewModel.releasePlayer()
-        //viewModel.releasePlayer()
     }
 
     public override fun onStop() {
@@ -56,9 +59,6 @@ class VideoPlayerAvtivity : AppCompatActivity() {
             viewModel.releasePlayer()
 
     }
-
-
-
 
 
     @SuppressLint("InlinedApi")

@@ -29,11 +29,11 @@ class PhotoDBRepository(private val dhgalleryDatabaseDao: DhgalleryDatabaseDao) 
     suspend fun insert(photoEntity: PhotoEntity) {
         dhgalleryDatabaseDao.insert(photoEntity)
     }
-    suspend fun liketoggle(photoEntity: PhotoEntity){
+    fun liketoggle(photoEntity: PhotoEntity){
         dhgalleryDatabaseDao.liketoggle(photoEntity)
     }
     val likedPhotos : LiveData<List<PhotoEntity>> = dhgalleryDatabaseDao.getliked()
-    suspend fun likeupdate(id:Long,like:Boolean) {
+    fun likeupdate(id:Long,like:Boolean) {
         dhgalleryDatabaseDao.likeupdate(id,like)
     }
 }

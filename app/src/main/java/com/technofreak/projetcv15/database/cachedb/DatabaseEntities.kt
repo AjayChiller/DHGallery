@@ -1,9 +1,8 @@
-package com.technofreak.projetcv15.flicker.cachedb
+package com.technofreak.projetcv15.database.cachedb
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.technofreak.projetcv15.model.PhotoEntity
 
 @Entity
 data class FlickerPhoto constructor(

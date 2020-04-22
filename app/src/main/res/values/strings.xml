@@ -21,7 +21,7 @@
     <string name="title_of_image">The Title of a Image</string>
     <string name="viewimage">ViewImage</string>
     <string name="camera_activity_info">Capture some photos\n using App camera</string>
-    <string name="liked_info">No Liked\n Imahes</string>
+    <string name="liked_info">No Liked\n Images</string>
     <string name="flicker_info">Search\nto view photos</string>
     <string name="placeholder" />
 </resources>
