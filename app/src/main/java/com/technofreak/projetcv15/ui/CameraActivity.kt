@@ -17,6 +17,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.google.android.material.textfield.TextInputLayout
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import com.technofreak.projetcv15.R
@@ -74,6 +75,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 captureButton.setOnTouchListener { _, event ->
                     videoCapture(event)
                 }
+                viewFinder.post { startCamera() }
             } else {
                 camMode = true
                 binding.cameraMode.background = getDrawable(R.drawable.ic_videocam_black_24dp)
@@ -81,6 +83,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 captureButton.setOnClickListener {
                     photoCapture()
                 }
+                viewFinder.post { startCamera() }
             }
         }
 
@@ -97,7 +100,6 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
         binding.autosave.setOnClickListener {
             updateAutoSaveUI(autoSave)
         }
-
 
 
 
@@ -122,9 +124,12 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
             parent.addView(viewFinder, 0)
             viewFinder.surfaceTexture = it.surfaceTexture
         }
-        if(preview!=null)
-             CameraX.unbindAll()
+        CameraX.unbindAll()
 
+
+
+
+        if (camMode) {
             val imageCaptureConfig = ImageCaptureConfig.Builder().apply {
                 setTargetAspectRatio(ratio)
                 setTargetRotation(viewFinder.display.rotation)
@@ -132,7 +137,10 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
             }.build()
             imageCapture = ImageCapture(imageCaptureConfig)
 
+           // Toast.makeText(this, "Photo Mode", Toast.LENGTH_SHORT).show()
 
+            CameraX.bindToLifecycle(this, preview, imageCapture)
+        } else {
             val videoCaptureConfig = VideoCaptureConfig.Builder().apply {
                 setTargetAspectRatio(ratio)
                 setTargetRotation(viewFinder.display.rotation)
@@ -140,7 +148,17 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
 
             }.build()
             videoCapture = VideoCapture(videoCaptureConfig)
-            CameraX.bindToLifecycle(this, preview,imageCapture, videoCapture)
+
+          //  Toast.makeText(this, "Video Mode", Toast.LENGTH_SHORT).show()
+            CameraX.bindToLifecycle(this, preview, videoCapture)
+        }
+            //CameraX.bindToLifecycle(this, preview,imageCapture)
+
+    }
+
+    fun changeCamMode()
+    {
+        CameraX.unbindAll()
 
     }
 
@@ -183,7 +201,6 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
 
 
     fun photoCapture() {
-        Log.i("DDDDx", "10")
         val fileLoc = File(
             externalMediaDirs.first(),
             "${System.currentTimeMillis()}.jpg"
@@ -218,20 +235,24 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
     fun previewViewer() {
         val file=curentFile
        binding.previewContainer.visibility=View.VISIBLE
-        val uri=file.absolutePath
-        val index=uri.lastIndexOf(".")
-        if (index > 0 && uri.substring(index) == ".mp4" ) {
+        if(!camMode){
             binding.playButton.visibility = View.VISIBLE
             binding.playButton.setOnClickListener {
+                binding.playButton.visibility = View.GONE
                 val intent = Intent(this, VideoPlayerAvtivity::class.java)
-                intent.putExtra("uri", uri)
+                intent.putExtra("uri", file.absolutePath)
                 startActivity(intent)
+                openSaveDialog()
             }
+
         }
         else
             binding.playButton.visibility = View.GONE
 
-        binding.previewImage.setImageURI(Uri.parse(uri))
+        binding.previewImage.setImageURI(Uri.parse(file.absolutePath))
+        Glide.with(binding.previewImage)
+            .load(file.absolutePath)
+            .into(binding.previewImage)
         binding.previewSave.setOnClickListener {
             openSaveDialog()
         }
@@ -280,16 +301,23 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
                 dialogInterface.dismiss()
                 binding.previewContainer.visibility=View.GONE
 
+
             }
             .setNegativeButton("Cancel") { dialogInterface, _ ->
                 Log.i("DDDD","DELETED2")
                 file.delete()
                 dialogInterface.cancel()
                 binding.previewContainer.visibility=View.GONE
+
             }
         builder.show()
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        viewFinder.post { startCamera() }
+    }
 
     private fun updateAutoSaveUI(_autosave: Int) {
         if (_autosave == 1)
@@ -319,9 +347,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
         }
 
     private fun bindCameraUseCases() {
-        if(preview!=null)
-            CameraX.unbindAll()
-        viewFinder.post { startCamera() }
+    viewFinder.post { startCamera() }
     }
 
     override fun onBackPressed() {
@@ -336,7 +362,6 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
             binding.previewContainer.visibility=View.GONE
         }
     }
-
 
 
 
