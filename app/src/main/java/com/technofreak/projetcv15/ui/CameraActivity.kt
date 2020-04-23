@@ -138,6 +138,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
             imageCapture = ImageCapture(imageCaptureConfig)
 
            // Toast.makeText(this, "Photo Mode", Toast.LENGTH_SHORT).show()
+            binding.timerMode.text="Photo Mode"
 
             CameraX.bindToLifecycle(this, preview, imageCapture)
         } else {
@@ -150,6 +151,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
             videoCapture = VideoCapture(videoCaptureConfig)
 
           //  Toast.makeText(this, "Video Mode", Toast.LENGTH_SHORT).show()
+            binding.timerMode.text="Video Mode"
             CameraX.bindToLifecycle(this, preview, videoCapture)
         }
             //CameraX.bindToLifecycle(this, preview,imageCapture)
@@ -316,7 +318,7 @@ class CameraActivity : AppCompatActivity() ,LifecycleOwner {
 
     override fun onResume() {
         super.onResume()
-        viewFinder.post { startCamera() }
+        methodWithPermissions()
     }
 
     private fun updateAutoSaveUI(_autosave: Int) {
