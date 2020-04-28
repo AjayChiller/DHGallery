@@ -13,7 +13,7 @@ import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.model.PhotoEntity
 import kotlinx.android.extensions.LayoutContainer
 
-class GalleryAdapter() :          ListAdapter<PhotoEntity, ImageViewHolder>(
+class GalleryAdapter() :  ListAdapter<PhotoEntity, ImageViewHolder>(
     PhotoEntity.DiffCallback) {
     private lateinit var onClick: (String, Int) -> Unit
     fun setOnClickListener(onClick: (String, Int) -> Unit) {
@@ -45,7 +45,6 @@ class GalleryAdapter() :          ListAdapter<PhotoEntity, ImageViewHolder>(
             .into(holder.imageView)
         val uri=photoEntity.displayName
         val index=uri.lastIndexOf(".")
-        Log.i("DDDD","  "+photoEntity.displayName)
         if (index > 0 && uri.substring(index) == ".mp4" )
             holder.play_button.visibility=View.VISIBLE
     }

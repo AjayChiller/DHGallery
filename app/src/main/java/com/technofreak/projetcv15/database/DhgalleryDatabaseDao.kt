@@ -18,7 +18,7 @@ interface DhgalleryDatabaseDao{
     @Query("SELECT * from dhgallery ORDER BY dateTaken DESC")
     fun getall(): LiveData<List<PhotoEntity>>
 
-    @Query("SELECT * from dhgallery where liked=1 ")
+    @Query("SELECT * from dhgallery where liked=1 ORDER BY dateTaken DESC " )
     fun getliked(): LiveData<List<PhotoEntity>>
 
 

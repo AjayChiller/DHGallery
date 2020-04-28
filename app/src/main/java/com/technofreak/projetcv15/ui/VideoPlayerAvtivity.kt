@@ -59,6 +59,7 @@ class VideoPlayerAvtivity : AppCompatActivity() {
             viewModel.releasePlayer()
 
     }
+    
 
 
     @SuppressLint("InlinedApi")

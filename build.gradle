@@ -16,6 +16,8 @@ buildscript {
         paging_version='2.1.0'
         archLifecycleVersion = '2.2.0'
         coreTestingVersion = '2.1.0'
+
+        navigationVersion = '1.0.0-rc02'
     }
 
 
