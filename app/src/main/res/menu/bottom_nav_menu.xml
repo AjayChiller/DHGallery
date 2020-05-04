@@ -16,6 +16,11 @@
         android:title="@string/camera" />
 
     <item
+        android:id="@+id/editor_menu"
+        android:icon="@drawable/edit_icon"
+        android:title="@string/editor" />
+
+    <item
         android:id="@+id/flicker_menu"
         android:icon="@drawable/ic_cloud_download_black_24dp"
         android:title="@string/flicker" />

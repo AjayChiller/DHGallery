@@ -36,6 +36,7 @@ class DHGalleryActivity : AppCompatActivity() {
                 R.id.gallery_menu ->     startActivity(Intent(this, MainActivity::class.java))
                 R.id.camera_menu ->      startActivity(Intent(this, CameraActivity::class.java))
                 R.id.flicker_menu ->   startActivity(Intent(this, FlickerActivity::class.java))
+                R.id.editor_menu->      startActivity(Intent(this, PhotoEditorActivity::class.java))
             }
            // ActivityCompat.finishAffinity(this)
             return@setOnNavigationItemSelectedListener true

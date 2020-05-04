@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.flicker_menu->     startActivity(Intent(this, FlickerActivity::class.java))
                 R.id.camera_menu->      startActivity(Intent(this, CameraActivity::class.java))
                 R.id.dhgallery_menu->   startActivity(Intent(this, DHGalleryActivity::class.java))
+                R.id.editor_menu->      startActivity(Intent(this, PhotoEditorActivity::class.java))
             }
             return@setOnNavigationItemSelectedListener true
         }

@@ -36,11 +36,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.google.android.material.textfield.TextInputLayout
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.databinding.FragmentCameraBinding
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.ui.DHGalleryActivity
+import com.technofreak.projetcv15.ui.PhotoEditorActivity
+import com.technofreak.projetcv15.ui.VideoPlayerAvtivity
 import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import id.zelory.compressor.Compressor
 import kotlinx.android.synthetic.main.camera_ui.view.*
@@ -58,18 +61,15 @@ class CameraFragment : Fragment(),LifecycleOwner{
     private var displayId: Int = -1
     private lateinit var sharedPref : SharedPreferences
     private var autoSave =0
-    private val tagg:String="FRAGMENTDDDD"
     private val executor = Executors.newSingleThreadExecutor()
     private lateinit var preview : Preview
     private lateinit var camera:Camera
-    private lateinit var curentFile: File
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.i(tagg,"2")
         binding=DataBindingUtil.inflate<FragmentCameraBinding>(inflater,R.layout.fragment_camera,container,false)
         return binding.root
     }
@@ -92,15 +92,11 @@ class CameraFragment : Fragment(),LifecycleOwner{
             // Keep track of the display in which this view is attached
             displayId = previewView.display.displayId
             // Build UI controls
-
             methodWithPermissions()
-
         }
 
         sharedPref=requireActivity().getPreferences(Context.MODE_PRIVATE) ?: return
         autoSave = sharedPref.getInt("AUTO_SAVE", 0)
-
-
     }
 
     private fun updateCameraUi() {
@@ -159,11 +155,6 @@ class CameraFragment : Fragment(),LifecycleOwner{
                 .setTargetRotation(rotation)
                 .build()
 
-
-
-
-
-
             imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 // We request aspect ratio but no resolution to match preview config, but letting
@@ -173,6 +164,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
                 // during the lifecycle of this use case
                 .setTargetRotation(rotation)
                 .build()
+
 
             val imageAnalysis = ImageAnalysis.Builder()
                 .setTargetAspectRatio(ratio)
@@ -210,11 +202,12 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
 
         imageCapture.let { imageCapture ->
+
+
             // Create output file to hold the image
             val photoFile = File(
-                requireContext().externalMediaDirs.first(),
-                "/cache/"+"${System.currentTimeMillis()}.jpg"
-            )
+                requireContext().externalCacheDir,
+                "${System.currentTimeMillis()}.jpg")
             // Setup image capture metadata
             val metadata = ImageCapture.Metadata().apply {
                 // Mirror image when using the front camera
@@ -230,6 +223,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
             imageCapture.takePicture(
                 outputOptions, executor, object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        Log.i("DDDD","savedlocation "+photoFile.absolutePath)
                         savePhoto(output,photoFile)
                     }
 
@@ -245,16 +239,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
         private fun savePhoto(output: ImageCapture.OutputFileResults,file:File)
          {
-
-             val compressor= Compressor(requireContext())
-             compressor.setDestinationDirectoryPath("storage/emulated/0/Android/media/com.technofreak.projetcv15/")
-             val photoFile=  compressor.compressToFile(file)
-                file.delete()
-
-             val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-             Log.d("TAG", "Photo capture succeeded: $savedUri")
-             Log.d("TAG",""+photoFile.absolutePath)
-             // Implicit broadcasts will be ignored for devices running API level >= 24
+             val savedUri = output.savedUri ?: Uri.fromFile(file)
              // so if you only target API level 24+ you can remove this statement
              if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                  requireActivity().sendBroadcast(
@@ -271,9 +256,10 @@ class CameraFragment : Fragment(),LifecycleOwner{
                  }, 100L)
          }
              if(autoSave==0)
-                 previewView.post{    previewSavedImage(photoFile)}
+                 //previewView.post{    previewSavedImage(photoFile)}
+                startEditor(file.absolutePath)
              else
-                 autoSaveImage(photoFile)
+                 autoSaveImage(file)
     }
 
     private fun previewSavedImage(file :File) {
@@ -313,13 +299,19 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
     private fun autoSaveImage(file:File)
     {
+        val compressor= Compressor(requireContext())
+        compressor.setDestinationDirectoryPath(requireContext().externalMediaDirs.first().absolutePath)
+
+        val photoFile=  compressor.compressToFile(file)
+        Log.i("DDDD","COMPRESSED AND SAVED TO "+photoFile.absolutePath)
         val photoEntity = PhotoEntity(
             0,
             "Unamed",
-            file.lastModified(),
-            file.absolutePath
+            photoFile.lastModified(),
+            photoFile.absolutePath
         )
         viewModel.insert(photoEntity)
+        file.delete()
     }
 
 
@@ -371,42 +363,14 @@ class CameraFragment : Fragment(),LifecycleOwner{
     }
 
 
-    private class LuminosityAnalyzer : ImageAnalysis.Analyzer {
-        private var lastAnalyzedTimestamp = 0L
 
-        /**
-         * Helper extension function used to extract a byte array from an
-         * image plane buffer
-         */
-        private fun ByteBuffer.toByteArray(): ByteArray {
-            rewind()    // Rewind the buffer to zero
-            val data = ByteArray(remaining())
-            get(data)   // Copy the buffer into a byte array
-            return data // Return the byte array
-        }
-
-
-        override fun analyze(image: ImageProxy) {
-            val currentTimestamp = System.currentTimeMillis()
-            // Calculate the average luma no more often than every second
-            if (currentTimestamp - lastAnalyzedTimestamp >=
-                java.util.concurrent.TimeUnit.SECONDS.toMillis(1)) {
-                // Since format in ImageAnalysis is YUV, image.planes[0]
-                // contains the Y (luminance) plane
-                val buffer = image.planes[0].buffer
-                // Extract image data from callback object
-                val data = buffer.toByteArray()
-                // Convert the data into an array of pixel values
-                val pixels = data.map { it.toInt() and 0xFF }
-                // Compute average luminance for the image
-                val luma = pixels.average()
-                // Log the new luma value
-                Log.d("CameraXApp", "Average luminosity: $luma")
-                // Update timestamp of last analyzed frame
-                lastAnalyzedTimestamp = currentTimestamp
-            }
-        }
+    private fun startEditor(uri:String)
+    {
+        val intent = Intent(requireContext(),PhotoEditorActivity::class.java)
+        intent.putExtra("uri", uri)
+        startActivity(intent)
     }
+
 
 
 
