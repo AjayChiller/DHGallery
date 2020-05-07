@@ -13,6 +13,7 @@
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="0dp" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,12 +25,12 @@
         app:layout_constraintRight_toRightOf="parent"
         android:gravity="center">
 
-    <ImageButton
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/select_image"
-        android:background="@drawable/ic_menu_gallery"
-        />
+        <ImageButton
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/select_image"
+            android:background="@drawable/ic_menu_gallery"
+            />
 
         <TextView
             android:layout_width="wrap_content"
@@ -56,49 +57,34 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
+            android:tooltipText="Save"
             android:id="@+id/save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_weight="1"
             style="@style/EditButtons"
             android:src="@drawable/save_icon" />
 
         <ImageButton
+            android:tooltipText="Delete"
             android:id="@+id/delete"
             style="@style/EditButtons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_weight="1"
             android:src="@drawable/delete_icon" />
 
         <ImageButton
             android:id="@+id/cancle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_weight="1"
             style="@style/EditButtons"
             android:src="@drawable/ic_close_black_24dp"
             android:tint="@color/white" />
 
         <ImageButton
             android:id="@+id/redo_tool"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:layout_weight="1"
             style="@style/EditButtons"
             android:src="@drawable/ic_redo_black_24dp" />
 
         <ImageButton
             android:id="@+id/undo_tool"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
             style="@style/EditButtons"
-            android:src="@drawable/undo_tool" />
+            android:src="@drawable/undo_tool"
+            android:layout_marginBottom="@dimen/zero"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -115,101 +101,80 @@
         app:layout_constraintRight_toRightOf="parent"
         android:visibility="gone">
 
-        android:orientation="vertical">
         <ImageButton
-            android:layout_weight="1"
-            style="@style/EditButtons"
-            android:layout_marginBottom="40dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/filter_icon"
             android:id="@+id/filter_tool"
-            />
-        <ImageButton
-            android:layout_weight="1"
             style="@style/EditButtons"
-            android:layout_marginBottom="40dp"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/filter_icon" />
+        <ImageButton
+            style="@style/EditButtons"
             android:src="@drawable/ic_tag_faces_black_24dp"
             android:id="@+id/add_Emoji"
             />
         <ImageButton
-            android:layout_weight="1"
             style="@style/EditButtons"
-            android:layout_marginBottom="40dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:src="@drawable/sticker_icon"
             android:id="@+id/add_Sticker"
             />
 
-
         <ImageButton
-            android:layout_weight="1"
             style="@style/EditButtons"
-            android:layout_marginBottom="40dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:src="@drawable/add_text"
             android:id="@+id/add_Text"
             />
 
         <ImageButton
-            android:layout_weight="1"
             style="@style/EditButtons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:src="@drawable/draw_icon"
             android:id="@+id/draw"
+            android:layout_marginBottom="@dimen/zero"
             />
 
     </LinearLayout>
 
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/add_txt_container"
         android:layout_width="@dimen/zero"
         android:layout_height="@dimen/zero"
-        android:id="@+id/add_txt_container"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:background="#96000000"
-        android:visibility="gone">
-
-
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
+            android:id="@+id/input_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/input_text"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textColor="@color/colorPrimary"
-            android:textColorHint="@color/colorPrimary"
             android:fontFamily="@font/amiko"
             android:hint="Add Text"
-            />
-
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textColorHint="@color/colorPrimary"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_color_lens_black_24dp"
-            android:background="@drawable/circle_bg"
-            android:padding="5dp"
-            android:layout_margin="30dp"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/bg_color_picker"
+            style="@style/EditButtons"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/ic_font_download_black_24dp"
+            app:layout_constraintRight_toLeftOf="@id/color_picker"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
             android:id="@+id/color_picker"
-            tools:ignore="MissingConstraints"
-            />
+            style="@style/EditButtons"
+            android:layout_margin="30dp"
+            android:src="@drawable/ic_color_lens_black_24dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

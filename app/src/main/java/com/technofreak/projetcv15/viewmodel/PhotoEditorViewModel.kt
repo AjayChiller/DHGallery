@@ -1,9 +1,7 @@
 package com.technofreak.projetcv15.viewmodel
 
 import android.app.Application
-import android.graphics.Bitmap
-import android.net.Uri
-import android.provider.MediaStore
+import android.graphics.Color
 import android.util.Log
 import android.util.Pair
 import androidx.lifecycle.AndroidViewModel
@@ -26,7 +24,9 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
     val sticker = ArrayList<String>()
     lateinit var emoji: ArrayList<String>
     var currentText=""
-    var colorCode= R.color.colorPrimaryDark
+    var colorCode= Color.BLACK
+    var bgcolorCode= Color.WHITE
+
     val filterPair: MutableList<Pair<String, PhotoFilter>> =
         java.util.ArrayList()
 
@@ -53,7 +53,7 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
     }
 
     suspend private fun getEmoji() {
-       emoji=PhotoEditor.getEmojis(app)
+        emoji=PhotoEditor.getEmojis(app)
     }
 
 
