@@ -16,7 +16,6 @@ buildscript {
         paging_version='2.1.0'
         archLifecycleVersion = '2.2.0'
         coreTestingVersion = '2.1.0'
-
         navigationVersion = '1.0.0-rc02'
     }
 
@@ -29,6 +28,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
     }
 }
 

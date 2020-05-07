@@ -15,12 +15,20 @@
  */
 package com.technofreak.projetcv15.repo
 
+import android.util.Log
+import android.util.Pair
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import com.technofreak.projetcv15.database.DhgalleryDatabaseDao
 import com.technofreak.projetcv15.model.PhotoEntity
+import ja.burhanrashid52.photoeditor.PhotoEditor
+import ja.burhanrashid52.photoeditor.PhotoFilter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class PhotoDBRepository(private val dhgalleryDatabaseDao: DhgalleryDatabaseDao) {
+
 
     val allPhotos: LiveData<List<PhotoEntity>> = dhgalleryDatabaseDao.getall()
 
@@ -29,11 +37,12 @@ class PhotoDBRepository(private val dhgalleryDatabaseDao: DhgalleryDatabaseDao) 
     suspend fun insert(photoEntity: PhotoEntity) {
         dhgalleryDatabaseDao.insert(photoEntity)
     }
-    fun liketoggle(photoEntity: PhotoEntity){
-        dhgalleryDatabaseDao.liketoggle(photoEntity)
+
+    val likedPhotos: LiveData<List<PhotoEntity>> = dhgalleryDatabaseDao.getliked()
+
+    fun likeupdate(id: Long, like: Boolean) {
+        dhgalleryDatabaseDao.likeupdate(id, like)
     }
-    val likedPhotos : LiveData<List<PhotoEntity>> = dhgalleryDatabaseDao.getliked()
-    fun likeupdate(id:Long,like:Boolean) {
-        dhgalleryDatabaseDao.likeupdate(id,like)
-    }
+
+
 }

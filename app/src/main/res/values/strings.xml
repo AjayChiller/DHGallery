@@ -12,9 +12,9 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="gallery">gallery</string>
-    <string name="dhgallery">dhgallery</string>
-    <string name="camera">camera</string>
+    <string name="gallery">Dallery</string>
+    <string name="dhgallery">DHGallery</string>
+    <string name="camera">Camera</string>
     <string name="like">Liked</string>
     <string name="flicker">Flicker</string>
     <string name="search_title">Search</string>
@@ -24,4 +24,7 @@
     <string name="liked_info">No Liked\n Images</string>
     <string name="flicker_info">Search\nto view photos</string>
     <string name="placeholder" />
+    <string name="select_font">Font</string>
+    <string name="edit_intro_text">Select Image\nForm Gallery</string>
+    <string name="editor">Editor</string>
 </resources>

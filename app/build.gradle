@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.technofreak.projetcv15"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -55,7 +55,7 @@ dependencies {
     implementation "androidx.activity:activity-ktx:$activity_ktx_version"
 
 
-    implementation"android.arch.navigation:navigation-fragment-ktx:$navigationVersion"
+    implementation "android.arch.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "android.arch.navigation:navigation-ui-ktx:$navigationVersion"
 
     //glide
@@ -106,4 +106,9 @@ dependencies {
     implementation 'id.zelory:compressor:2.1.0'
 //editor
     implementation 'ja.burhanrashid52:photoeditor:1.0.0'
+
+    //colorpicker
+    implementation 'petrov.kristiyan:colorpicker-library:1.1.10'
+
+
 }
