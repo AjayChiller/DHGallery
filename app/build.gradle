@@ -110,5 +110,9 @@ dependencies {
     //colorpicker
     implementation 'petrov.kristiyan:colorpicker-library:1.1.10'
 
+//toast
+    implementation 'com.github.GrenderG:Toasty:1.4.2'
 
+
+    implementation 'com.github.varunest:sparkbutton:1.0.6'
 }

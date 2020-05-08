@@ -62,10 +62,10 @@ class FilterAdapter(val mPairList:List<Pair<String, PhotoFilter>>,val mFilterLis
         strName: String
     ): Bitmap? {
         val assetManager = context.assets
-        var istr: InputStream? = null
+     //   var istr: InputStream? = null
         return try {
-            istr = assetManager.open(strName)
-            BitmapFactory.decodeStream(istr)
+       //     istr = assetManager.open(strName)
+            BitmapFactory.decodeStream(assetManager.open(strName))
         } catch (e: IOException) {
             e.printStackTrace()
             null

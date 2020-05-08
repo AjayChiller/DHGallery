@@ -15,7 +15,7 @@ import com.technofreak.projetcv15.viewmodel.VideoPlayerViewModel
 class VideoPlayerAvtivity : AppCompatActivity() {
 
     private var playerView: PlayerView? = null
-    private var mediaUri = ""
+    private var mediaUri:String? = ""
     private val viewModel: VideoPlayerViewModel by viewModels()
 
 
@@ -29,13 +29,13 @@ class VideoPlayerAvtivity : AppCompatActivity() {
 
         viewModel.componentListener =
             ComponentListener()
-        if(mediaUri.isEmpty())
+        if(mediaUri!!.isEmpty())
         {
             Toast.makeText(this,"Video Cant be played",Toast.LENGTH_SHORT).show()
             Log.i("DDDDD"," ----emptyyyyyyy----" )
             onBackPressed()
         }else{
-            viewModel.initializePlayer(mediaUri)
+            viewModel.initializePlayer(mediaUri!!)
         }
     }
 

@@ -27,7 +27,8 @@ import com.technofreak.projetcv15.databinding.ActivityMainBinding
 
 
 import com.technofreak.projetcv15.viewmodel.MainActivityViewModel
-import kotlinx.android.synthetic.main.activity_main.nav_view
+import kotlinx.android.synthetic.main.activity_main.*
+import okhttp3.internal.wait
 
 
 const val PERMISSIONS_REQUEST_CODE = 10
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         galleryAdapter = GalleryAdapter ()
-        galleryAdapter.setOnClickListener { image ,pos->
+        galleryAdapter.setOnClickListener { _ ,pos->
             startViewPager(pos)
         }
 
@@ -194,14 +195,17 @@ class MainActivity : AppCompatActivity() {
         when(item!!.title)
         {
             "Video" ->  {
-                            item.setIcon(R.drawable.ic_camera_alt_black_24dp)
+
+
+                           item.setIcon(R.drawable.ic_camera_alt_black_24dp)
                             item.title = "Photo"
                             viewModel.videos.observe(this, Observer {
                                 galleryAdapter.submitList(it)
                                  })
-                            galleryAdapter.setOnClickListener { uri ,pos->
+                            galleryAdapter.setOnClickListener { uri ,_->
                                 startVideoPlayer(uri)
                                  }
+
                         }
             "Photo" -> {
 
@@ -210,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                             viewModel.images.observe(this, Observer{
                                 galleryAdapter.submitList(it)
                                     })
-                            galleryAdapter.setOnClickListener { uri ,pos->
+                            galleryAdapter.setOnClickListener { _ ,pos->
                                  startViewPager(pos)
                                  }
                         }

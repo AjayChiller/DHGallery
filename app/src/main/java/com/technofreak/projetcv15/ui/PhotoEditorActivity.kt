@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -26,6 +28,7 @@ import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.utils.focusAndShowKeyboard
 import com.technofreak.projetcv15.utils.hideKeyboard
 import com.technofreak.projetcv15.viewmodel.PhotoEditorViewModel
+import es.dmoral.toasty.Toasty
 import id.zelory.compressor.Compressor
 import ja.burhanrashid52.photoeditor.PhotoEditor
 import ja.burhanrashid52.photoeditor.PhotoEditor.OnSaveListener
@@ -48,9 +51,17 @@ class PhotoEditorActivity : AppCompatActivity() {
     private var OnTop = -1
     private var isCaptured=false
     private var textFont:Typeface?=null
+    private lateinit var rbutton_entry:Animation
+    private lateinit var lbutton_entry:Animation
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo_editor)
+
+        rbutton_entry = AnimationUtils.loadAnimation(            this,            R.anim.rbutton_entry        )
+        lbutton_entry = AnimationUtils.loadAnimation(            this,            R.anim.lbutton_entry        )
         val photoPath = intent.getStringExtra("uri")
         if (photoPath != null) {
             isCaptured=true
@@ -75,8 +86,7 @@ class PhotoEditorActivity : AppCompatActivity() {
     private fun initializeEditor() {
         OnTop=0
         intro.visibility = View.GONE
-        left_tools_container.visibility = View.VISIBLE
-        right_tools_container.visibility = View.VISIBLE
+        viewButtons()
         val mTextRobotoTf = ResourcesCompat.getFont(this, R.font.amiko)
         textFont=ResourcesCompat.getFont(this, R.font.carter_one)
         val mEmojiTypeFace = Typeface.createFromAsset(assets, "emojione-android.ttf")
@@ -102,19 +112,20 @@ class PhotoEditorActivity : AppCompatActivity() {
     private fun deletePhoto() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Do you want to Exit eithout Saving")
-        builder.setPositiveButton(android.R.string.yes) { dialog, which ->
+        builder.setPositiveButton(android.R.string.yes) { _, _ ->
             if (isCaptured)
                 photoFile.delete()
             photo_editor_view.source.setImageURI(null)
             goToGallery()
         }
-        builder.setNegativeButton(android.R.string.no) { dialog, which ->
+        builder.setNegativeButton(android.R.string.no) { _, _ ->
         }
         builder.show()
 
     }
 
     private fun savePhoto() {
+
         left_tools_container.visibility = View.GONE
         right_tools_container.visibility = View.GONE
         val customLayout = LayoutInflater.from(this).inflate(R.layout.image_input_dialog, null)
@@ -125,7 +136,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             .setPositiveButton("Submit") { dialogInterface, _ ->
                 dialogInterface.dismiss()
                 progressBar.visibility = View.VISIBLE
-
+                Toasty.info(this, "Saving", Toast.LENGTH_SHORT ).show();
 
                 val saveSettings = SaveSettings.Builder().build()
                 val editedfilepath=externalCacheDir!!.absolutePath+System.currentTimeMillis()+".jpg"
@@ -159,8 +170,7 @@ class PhotoEditorActivity : AppCompatActivity() {
                     })
             }
             .setNegativeButton("Cancle") { dialogInterface, _ ->
-                left_tools_container.visibility = View.VISIBLE
-                right_tools_container.visibility = View.VISIBLE
+                viewButtons()
                 dialogInterface.cancel()
             }
         builder.show()
@@ -183,8 +193,7 @@ class PhotoEditorActivity : AppCompatActivity() {
         filter_container.setOnClickListener {
             OnTop = 0
             filter_container.visibility = View.GONE
-            left_tools_container.visibility = View.VISIBLE
-            right_tools_container.visibility = View.VISIBLE
+             viewButtons()
         }
     }
 
@@ -217,8 +226,7 @@ class PhotoEditorActivity : AppCompatActivity() {
         close_drawing.setOnClickListener {
             OnTop = 0
             draw_container.visibility = View.GONE
-            left_tools_container.visibility = View.VISIBLE
-            right_tools_container.visibility = View.VISIBLE
+           viewButtons()
             mPhotoEditor.setBrushDrawingMode(false)
         }
         brush_color_picker.setOnClickListener {
@@ -315,11 +323,11 @@ class PhotoEditorActivity : AppCompatActivity() {
     {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Do you want to remove all the changes made ?")
-        builder.setPositiveButton(android.R.string.yes) { dialog, which ->
+        builder.setPositiveButton(android.R.string.yes) { _, _ ->
             mPhotoEditor.clearAllViews()
             mPhotoEditor.setFilterEffect(PhotoFilter.NONE)
         }
-        builder.setNegativeButton(android.R.string.no) { dialog, which ->
+        builder.setNegativeButton(android.R.string.no) { _, _ ->
         }
         builder.show()
 
@@ -341,8 +349,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             0 -> deletePhoto()
             1 -> {
                 draw_container.visibility = View.GONE
-                left_tools_container.visibility = View.VISIBLE
-                right_tools_container.visibility = View.VISIBLE
+                viewButtons()
                 mPhotoEditor.setBrushDrawingMode(false)
             }
             2 -> {
@@ -366,8 +373,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             5 -> {
                 OnTop = 0
                 filter_container.visibility = View.GONE
-                left_tools_container.visibility = View.VISIBLE
-                right_tools_container.visibility = View.VISIBLE
+                viewButtons()
             }
         }
     }
@@ -387,6 +393,14 @@ class PhotoEditorActivity : AppCompatActivity() {
             }
             super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    private fun viewButtons()
+    {
+        left_tools_container.visibility = View.VISIBLE
+        left_tools_container.startAnimation(lbutton_entry)
+        right_tools_container.visibility = View.VISIBLE
+        right_tools_container.startAnimation(rbutton_entry)
     }
 
 }

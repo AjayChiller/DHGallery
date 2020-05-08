@@ -47,6 +47,8 @@ class GalleryAdapter() :  ListAdapter<PhotoEntity, ImageViewHolder>(
         val index=uri.lastIndexOf(".")
         if (index > 0 && uri.substring(index) == ".mp4" )
             holder.play_button.visibility=View.VISIBLE
+        else
+            holder.play_button.visibility=View.GONE
     }
 }
 /**

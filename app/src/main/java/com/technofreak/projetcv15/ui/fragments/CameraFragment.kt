@@ -166,20 +166,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
                 .build()
 
 
-            val imageAnalysis = ImageAnalysis.Builder()
-                .setTargetAspectRatio(ratio)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
-
-            imageAnalysis.setAnalyzer(executor, ImageAnalysis.Analyzer { image ->
-
-            })
-
-
-
-
-
-            cameraProvider.unbindAll()
+               cameraProvider.unbindAll()
 
             // Choose the camera by requiring a lens facing
 
@@ -256,7 +243,6 @@ class CameraFragment : Fragment(),LifecycleOwner{
                  }, 100L)
          }
              if(autoSave==0)
-                 //previewView.post{    previewSavedImage(photoFile)}
                 startEditor(file.absolutePath)
              else
                  autoSaveImage(file)

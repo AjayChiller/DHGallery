@@ -1,5 +1,6 @@
 package com.technofreak.projetcv15.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.model.PhotoEntity
+import com.varunest.sparkbutton.SparkButton
+import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.extensions.LayoutContainer
 
 
@@ -53,21 +56,39 @@ class DHGalleryAdapter :    ListAdapter<PhotoEntity, ImageViewHolder2>(
         holder.rootView.tag = photoEntity
         holder.title.text=photoEntity.displayName
         holder.tags.text=photoEntity.tags
-        if(photoEntity.liked) {
-            holder.like_button.setImageResource(R.drawable.ic_toast_like)
-        }else{
-            holder.like_button.setImageResource(R.drawable.ic_toast_unlike)
+
+        if(photoEntity.liked)
+            holder.like_button.isChecked=true
+        else
+            holder.like_button.isChecked=false
+
+
+        holder.like_button.setEventListener(object : SparkEventListener {
+            override fun onEventAnimationEnd(button: ImageView?, buttonState: Boolean) {
+             if( buttonState==true) {
+                 photoEntity.liked = !photoEntity.liked
+                 onClickLike(photoEntity)
+                 notifyDataSetChanged()
+             }
             }
-        holder.like_button.setOnClickListener{
-            photoEntity.liked=!photoEntity.liked
-            onClickLike(photoEntity)
-            notifyDataSetChanged()
-        }
+            override fun onEvent(button: ImageView?, buttonState: Boolean) {
+                if( buttonState==false) {
+                    photoEntity.liked = !photoEntity.liked
+                    onClickLike(photoEntity)
+                    notifyDataSetChanged()
+                }
+            }
+            override fun onEventAnimationStart(button: ImageView?, buttonState: Boolean) {
+            }
+        })
+
 
         val uri=photoEntity.contentUri
         val index=uri.lastIndexOf(".")
         if (index > 0 && uri.substring(index) == ".mp4" )
             holder.play_button.visibility=View.VISIBLE
+        else
+            holder.play_button.visibility=View.GONE
 
         Glide.with(holder.imageView)
             .load(photoEntity.contentUri)
@@ -87,7 +108,7 @@ class ImageViewHolder2( override val containerView: View) :    RecyclerView.View
     val imageView: ImageView = containerView.findViewById(R.id.liked_image)
     val title: TextView = containerView.findViewById(R.id.liked_title)
     val tags : TextView=containerView.findViewById(R.id.liked_tags)
-    val like_button:ImageView=containerView.findViewById(R.id.liked_image_button)
+    val like_button:SparkButton=containerView.findViewById(R.id.liked_image_button)
     val play_button : ImageButton = containerView.findViewById(R.id.play_button)
 
 }
