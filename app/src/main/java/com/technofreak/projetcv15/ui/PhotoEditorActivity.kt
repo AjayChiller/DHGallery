@@ -2,7 +2,8 @@ package com.technofreak.projetcv15.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Typeface
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +29,7 @@ import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.utils.focusAndShowKeyboard
 import com.technofreak.projetcv15.utils.hideKeyboard
 import com.technofreak.projetcv15.viewmodel.PhotoEditorViewModel
+import com.theartofdev.edmodo.cropper.CropImageView
 import es.dmoral.toasty.Toasty
 import id.zelory.compressor.Compressor
 import ja.burhanrashid52.photoeditor.PhotoEditor
@@ -46,13 +48,10 @@ private const val PICK_REQUEST = 100
 
 class PhotoEditorActivity : AppCompatActivity() {
     private val viewModel: PhotoEditorViewModel by viewModels()
-    private lateinit var photoFile: File
     private lateinit var mPhotoEditor: PhotoEditor
-    private var OnTop = -1
-    private var isCaptured=false
-    private var textFont:Typeface?=null
     private lateinit var rbutton_entry:Animation
     private lateinit var lbutton_entry:Animation
+    private lateinit var cropTool: CropImageView
 
 
 
@@ -64,9 +63,10 @@ class PhotoEditorActivity : AppCompatActivity() {
         lbutton_entry = AnimationUtils.loadAnimation(            this,            R.anim.lbutton_entry        )
         val photoPath = intent.getStringExtra("uri")
         if (photoPath != null) {
-            isCaptured=true
-            photoFile = File(photoPath)
-            photo_editor_view.source.setImageURI(Uri.parse(photoPath))
+            viewModel.isCaptured=true
+            viewModel.photoFile = File(photoPath)
+            viewModel.fileUri=Uri.parse(photoPath)
+            photo_editor_view.source.setImageURI(viewModel.fileUri)
             initializeEditor()
         } else {
             select_image.setOnClickListener { selectImage() }
@@ -84,18 +84,17 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
     private fun initializeEditor() {
-        OnTop=0
+        viewModel.OnTop=0
         intro.visibility = View.GONE
         viewButtons()
-        val mTextRobotoTf = ResourcesCompat.getFont(this, R.font.amiko)
-        textFont=ResourcesCompat.getFont(this, R.font.carter_one)
-        val mEmojiTypeFace = Typeface.createFromAsset(assets, "emojione-android.ttf")
+       viewModel.textFont=ResourcesCompat.getFont(this, R.font.carter_one)
         mPhotoEditor = PhotoEditor.Builder(this, photo_editor_view)
             .setPinchTextScalable(true)
-            .setPinchTextScalable(true)
-            .setDefaultTextTypeface(mTextRobotoTf)
-            .setDefaultEmojiTypeface(mEmojiTypeFace)
+            .setDefaultTextTypeface(viewModel.textFont)
             .build()
+
+        cropTool=crop_Image_View
+
         photo_editor_view.setOnClickListener{    mPhotoEditor.clearHelperBox()    }
         draw.setOnClickListener { draw() }
         add_Text.setOnClickListener { addText() }
@@ -107,14 +106,44 @@ class PhotoEditorActivity : AppCompatActivity() {
         cancle.setOnClickListener { clearAll()      }
         save.setOnClickListener { savePhoto() }
         delete.setOnClickListener { deletePhoto() }
+        crop_tool.setOnClickListener    {       cropPhoto()  }
+    }
+
+    private fun cropPhoto() {
+        viewModel.OnTop=6
+        crop_container.visibility=View.VISIBLE
+        left_tools_container.visibility = View.GONE
+        right_tools_container.visibility = View.GONE
+        if(viewModel.isCaptured) {
+            val bmOptions = BitmapFactory.Options()
+            var bitmap = BitmapFactory.decodeFile(viewModel.photoFile.absolutePath, bmOptions)
+            bitmap = Bitmap.createBitmap(bitmap!!)
+            cropTool.setImageBitmap(bitmap)
+            cropTool.rotateImage(90)
+        }
+        else
+        {
+            cropTool.setImageUriAsync(viewModel.fileUri)
+        }
+        rotate_crop.setOnClickListener{     cropTool.rotateImage(90)    }
+        save_crop.setOnClickListener{  saveCrop()        }
+    }
+
+    private fun saveCrop() {
+        val cropped = cropTool.croppedImage
+        crop_container.visibility=View.GONE
+        viewButtons()
+        photo_editor_view.source.setImageBitmap(cropped)
+        mPhotoEditor.setFilterEffect(viewModel.prevFilter)
+        viewModel.OnTop=0
     }
 
     private fun deletePhoto() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Do you want to Exit eithout Saving")
         builder.setPositiveButton(android.R.string.yes) { _, _ ->
-            if (isCaptured)
-                photoFile.delete()
+            if (viewModel.isCaptured)
+                viewModel.photoFile.delete()
             photo_editor_view.source.setImageURI(null)
             goToGallery()
         }
@@ -158,8 +187,8 @@ class PhotoEditorActivity : AppCompatActivity() {
                             )
                             viewModel.insert(photoEntity)
                             editedFile.delete()
-                            if(isCaptured)
-                                photoFile.delete()
+                            if(viewModel.isCaptured)
+                                viewModel.photoFile.delete()
                             photo_editor_view.source.setImageURI(null)
                             goToGallery()
                         }
@@ -178,7 +207,8 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
     private fun addFilters() {
-        OnTop = 5
+        mPhotoEditor.clearHelperBox()
+        viewModel.OnTop = 5
         filter_container.visibility = View.VISIBLE
         left_tools_container.visibility = View.GONE
         right_tools_container.visibility = View.GONE
@@ -186,19 +216,21 @@ class PhotoEditorActivity : AppCompatActivity() {
         val filterAdapter = FilterAdapter(viewModel.filterPair, object : FilterListener {
             override fun onFilterSelected(photoFilter: PhotoFilter?) {
                 mPhotoEditor.setFilterEffect(photoFilter)
+                viewModel.prevFilter=photoFilter!!
             }
         }
         )
         filter_view.adapter = filterAdapter
         filter_container.setOnClickListener {
-            OnTop = 0
+            viewModel.OnTop = 0
             filter_container.visibility = View.GONE
              viewButtons()
         }
     }
 
     private fun draw() {
-        OnTop = 1
+        mPhotoEditor.clearHelperBox()
+        viewModel.OnTop = 1
         draw_container.visibility = View.VISIBLE
         left_tools_container.visibility = View.GONE
         right_tools_container.visibility = View.GONE
@@ -224,7 +256,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             mPhotoEditor.brushEraser()
         }
         close_drawing.setOnClickListener {
-            OnTop = 0
+            viewModel.OnTop = 0
             draw_container.visibility = View.GONE
            viewButtons()
             mPhotoEditor.setBrushDrawingMode(false)
@@ -244,13 +276,14 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
     private fun addEmoji() {
-        OnTop = 4
+        mPhotoEditor.clearHelperBox()
+        viewModel.OnTop = 4
         val emojiAdapter = EmojiAdapter(viewModel.emoji)
         emoji_container.visibility = View.VISIBLE
         emoji_container.layoutManager = GridLayoutManager(this, 5)
         emoji_container.adapter = emojiAdapter
         emojiAdapter.setOnClickListener {
-            OnTop = 0
+            viewModel.OnTop = 0
             emoji_container.visibility = View.GONE
             mPhotoEditor.addEmoji(it)
         }
@@ -258,8 +291,9 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
     private fun addSricker() {
-        OnTop = 3
-        val stickerAdapter = StickerAdapter(viewModel.sticker)
+        mPhotoEditor.clearHelperBox()
+        viewModel.OnTop = 3
+        val stickerAdapter = StickerAdapter(viewModel.stickers)
         sticker_container.visibility = View.VISIBLE
         sticker_container.layoutManager = GridLayoutManager(this, 3)
         sticker_container.adapter = stickerAdapter
@@ -269,7 +303,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             )
         )
         stickerAdapter.setOnClickListener {
-            OnTop = 0
+            viewModel.OnTop = 0
             sticker_container.visibility = View.GONE
             mPhotoEditor.addImage(it)
         }
@@ -277,19 +311,20 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
     private fun addText() {
-        OnTop = 2
+        mPhotoEditor.clearHelperBox()
+        viewModel.OnTop = 2
         input_text.text=null
         focusAndShowKeyboard(this, input_text)
         add_txt_container.visibility = View.VISIBLE
         add_txt_container.setOnClickListener {
-            OnTop = 0
+            viewModel.OnTop = 0
             hideKeyboard(this)
             viewModel.currentText = input_text.text.toString()
             add_txt_container.visibility = View.GONE
             if (viewModel.currentText != "") {
                 val textStyle = TextStyleBuilder()
                 textStyle.withTextColor(viewModel.colorCode)
-                textStyle.withTextFont(textFont!!)
+                textStyle.withTextFont(viewModel.textFont!!)
                 textStyle.withBackgroundColor(viewModel.bgcolorCode)
                 mPhotoEditor.addText("  "+viewModel.currentText+"  ", textStyle)
             }
@@ -311,7 +346,7 @@ class PhotoEditorActivity : AppCompatActivity() {
             colorPicker.show()
             colorPicker.setOnChooseColorListener(object : OnChooseColorListener {
                 override fun onChooseColor(position: Int, color: Int) {
-                    input_text.setTextColor(color)
+                    input_text.setBackgroundColor(color)
                     viewModel.bgcolorCode = color
                 }
                 override fun onCancel() {}
@@ -325,7 +360,10 @@ class PhotoEditorActivity : AppCompatActivity() {
         builder.setMessage("Do you want to remove all the changes made ?")
         builder.setPositiveButton(android.R.string.yes) { _, _ ->
             mPhotoEditor.clearAllViews()
+            viewModel.prevFilter=PhotoFilter.NONE
+
             mPhotoEditor.setFilterEffect(PhotoFilter.NONE)
+            photo_editor_view.source.setImageURI(viewModel.fileUri)
         }
         builder.setNegativeButton(android.R.string.no) { _, _ ->
         }
@@ -343,7 +381,7 @@ class PhotoEditorActivity : AppCompatActivity() {
 
 
     override fun onBackPressed() {
-        when (OnTop) {
+        when (viewModel.OnTop) {
 
             -1 ->goToGallery()
             0 -> deletePhoto()
@@ -358,7 +396,7 @@ class PhotoEditorActivity : AppCompatActivity() {
                 if (viewModel.currentText != "") {
                     val textStyle = TextStyleBuilder()
                     textStyle.withTextColor(viewModel.colorCode)
-                    textStyle.withTextFont(textFont!!)
+                    textStyle.withTextFont(viewModel.textFont!!)
                     textStyle.withBackgroundColor(viewModel.bgcolorCode)
                     mPhotoEditor.addText("  "+viewModel.currentText+"  ", textStyle)
                 }
@@ -371,11 +409,16 @@ class PhotoEditorActivity : AppCompatActivity() {
                 emoji_container.visibility = View.GONE
             }
             5 -> {
-                OnTop = 0
+                viewModel.OnTop = 0
                 filter_container.visibility = View.GONE
                 viewButtons()
             }
+            6  ->{
+                crop_container.visibility=View.GONE
+                viewButtons()
+            }
         }
+        viewModel.OnTop=0
     }
 
 
@@ -383,8 +426,8 @@ class PhotoEditorActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == PICK_REQUEST) {
                 try {
-                    val uri = data!!.data
-                    photo_editor_view.source.setImageURI(uri)
+                    viewModel.fileUri = data!!.data!!
+                    photo_editor_view.source.setImageURI(viewModel.fileUri)
                     initializeEditor()
                 } catch (e: IOException) {
                     Log.i("DDDD", "tempp FILE " + e)

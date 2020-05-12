@@ -1,8 +1,6 @@
 package com.technofreak.projetcv15.adapter
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +9,8 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.technofreak.projetcv15.R
 import kotlinx.android.extensions.LayoutContainer
-import java.io.IOException
-import java.io.InputStream
 
-class StickerAdapter(val sticker:List<String>) : RecyclerView.Adapter<StickerViewHolder>()  {
+class StickerAdapter(val sticker:List<Bitmap>) : RecyclerView.Adapter<StickerViewHolder>()  {
     private lateinit var onClick: (Bitmap) -> Unit
     fun setOnClickListener(onClick: (Bitmap) -> Unit) {
         this.onClick = onClick
@@ -38,27 +34,12 @@ class StickerAdapter(val sticker:List<String>) : RecyclerView.Adapter<StickerVie
 
     override fun onBindViewHolder(holder: StickerViewHolder, position: Int) {
         Log.i("DDDD","BINFING")
-            val stick = sticker[position]
-        val fromAsset = getBitmapFromAsset(holder.itemView.context, stick)
+           val stick = sticker[position]
 
-            holder.bitmap=fromAsset
-        holder.imageView.setImageBitmap(fromAsset)
+            holder.bitmap=stick
+            holder.imageView.setImageBitmap(stick)
     }
 
-    private fun getBitmapFromAsset(
-        context: Context,
-        strName: String
-    ): Bitmap? {
-        val assetManager = context.assets
-
-        return try {
-          val  istr = assetManager.open(strName)
-            BitmapFactory.decodeStream(istr)
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
-    }
 }
 
 class StickerViewHolder( override val containerView: View) :    RecyclerView.ViewHolder(containerView),LayoutContainer {

@@ -33,4 +33,9 @@
     <dimen name="blog_pad_bottom">5dp</dimen>
     <dimen name="editor_tools">25dp</dimen>
     <dimen name="editor_tool_margin">5dp</dimen>
+
+    <dimen name="video_timer_size">24sp</dimen>
+    <dimen name="video_timer_margin">20dp</dimen>
+    <dimen name="video_start_timer_size">100sp</dimen>
+    <dimen name="add_text_size">30sp</dimen>
 </resources>

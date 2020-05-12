@@ -1,7 +1,12 @@
 package com.technofreak.projetcv15.viewmodel
 
 import android.app.Application
+import android.content.res.AssetManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Typeface
+import android.net.Uri
 import android.util.Log
 import android.util.Pair
 import androidx.lifecycle.AndroidViewModel
@@ -16,16 +21,25 @@ import kotlinx.android.synthetic.main.activity_camera.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.internal.threadName
+import java.io.File
 
 
 class PhotoEditorViewModel (application: Application) : AndroidViewModel(application) {
     val app = application
     private val photoRepository: PhotoDBRepository
-    val sticker = ArrayList<String>()
+    val stickers=ArrayList<Bitmap>()
     lateinit var emoji: ArrayList<String>
     var currentText=""
     var colorCode= Color.BLACK
     var bgcolorCode= Color.WHITE
+
+     lateinit var fileUri: Uri
+     var OnTop = -1
+     var isCaptured=false
+     lateinit var photoFile: File
+     var textFont: Typeface?=null
+     var prevFilter=PhotoFilter.NONE
+
 
     val filterPair: MutableList<Pair<String, PhotoFilter>> =
         java.util.ArrayList()
@@ -58,8 +72,11 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
 
 
     suspend fun getStickers() {
-        for (i in 1..15) {
-            sticker.add("stickers/" + i.toString() + ".png")
+       val asset:AssetManager=app.assets
+        for( i in asset.list("stickers/")!!) {
+            val ins = asset.open("stickers/" + i)
+            val bitmap = BitmapFactory.decodeStream(ins)
+            stickers.add(bitmap)
         }
     }
 

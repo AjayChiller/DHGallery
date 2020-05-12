@@ -1,54 +1,45 @@
 package com.technofreak.projetcv15.ui.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
-import android.icu.util.TimeUnit
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
-import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.camera.core.*
-import androidx.camera.core.impl.ImageAnalysisConfig
-import androidx.camera.core.impl.VideoCaptureConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
-import com.google.android.material.textfield.TextInputLayout
+import androidx.navigation.findNavController
 import com.livinglifetechway.quickpermissions_kotlin.runWithPermissions
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.databinding.FragmentCameraBinding
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.ui.DHGalleryActivity
 import com.technofreak.projetcv15.ui.PhotoEditorActivity
-import com.technofreak.projetcv15.ui.VideoPlayerAvtivity
 import com.technofreak.projetcv15.viewmodel.DHGalleryViewModel
 import id.zelory.compressor.Compressor
 import kotlinx.android.synthetic.main.camera_ui.view.*
 import java.io.File
-import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 
 class CameraFragment : Fragment(),LifecycleOwner{
@@ -64,6 +55,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
     private val executor = Executors.newSingleThreadExecutor()
     private lateinit var preview : Preview
     private lateinit var camera:Camera
+    private var timeValue=5
 
 
     override fun onCreateView(
@@ -101,14 +93,17 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
     private fun updateCameraUi() {
         // Remove previous UI if any
-           container.findViewById<ConstraintLayout>(R.id.camera_ui_container)?.let {
+        container.findViewById<ConstraintLayout>(R.id.camera_ui_container)?.let {
             container.removeView(it)
         }
 
         val controls = View.inflate(requireContext(), R.layout.camera_ui, container)
 
         controls.capture_button.setOnClickListener {
-            photoCapture()
+            if (timeValue == 0)
+                photoCapture()
+            else
+                startTimer()
         }
 
         controls.findViewById<ImageButton>(R.id.switch_camera).setOnClickListener {
@@ -122,7 +117,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
         }
 
         controls.findViewById<ImageButton>(R.id.view_images).setOnClickListener {
-            startActivity(Intent(requireContext(), DHGalleryActivity::class.java))
+            goToGallery()
         }
         if(autoSave==0)
             container.autosave.background=getDrawable(requireContext(),R.drawable.ic_autosaveoff_black_24dp)
@@ -132,9 +127,17 @@ class CameraFragment : Fragment(),LifecycleOwner{
         container.autosave.setOnClickListener {
             updateAutoSaveUI(autoSave)
         }
-
+        container.camera_mode.setOnClickListener { view->
+            view.findNavController().navigate(R.id.action_cameraFragment_to_videoFragment)
         }
+        timerChange()
+        container.camera_timer.setOnClickListener{  timerChange()   }
 
+    }
+
+
+
+    @SuppressLint("RestrictedApi")
     private fun bindCameraUseCases() {
         previewView=binding.previewView
 
@@ -157,16 +160,15 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
             imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                // We request aspect ratio but no resolution to match preview config, but letting
-                // CameraX optimize for whatever specific resolution best fits our use cases
                 .setTargetAspectRatio(ratio)
-                // Set initial target rotation, we will have to call this again if rotation changes
-                // during the lifecycle of this use case
                 .setTargetRotation(rotation)
                 .build()
 
 
-               cameraProvider.unbindAll()
+
+
+
+            cameraProvider.unbindAll()
 
             // Choose the camera by requiring a lens facing
 
@@ -186,11 +188,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
     }
 
     private fun photoCapture() {
-
-
         imageCapture.let { imageCapture ->
-
-
             // Create output file to hold the image
             val photoFile = File(
                 requireContext().externalCacheDir,
@@ -216,7 +214,6 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
                     override fun onError(exception: ImageCaptureException) {
                         Log.i("DDDD","DDDDDDDDD"+exception)
-                        TODO("Not yet implemented")
                     }
                 })
 
@@ -224,64 +221,67 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
     }
 
-        private fun savePhoto(output: ImageCapture.OutputFileResults,file:File)
-         {
-             val savedUri = output.savedUri ?: Uri.fromFile(file)
-             // so if you only target API level 24+ you can remove this statement
-             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                 requireActivity().sendBroadcast(
-                     Intent(android.hardware.Camera.ACTION_NEW_PICTURE, savedUri)
+    private fun savePhoto(output: ImageCapture.OutputFileResults,file:File)
+    {
+        val savedUri = output.savedUri ?: Uri.fromFile(file)
+        // so if you only target API level 24+ you can remove this statement
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            requireActivity().sendBroadcast(
+                Intent(android.hardware.Camera.ACTION_NEW_PICTURE, savedUri)
+            )
+        }
+        // We can only change the foreground Drawable using API level 23+ API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Display flash animation to indicate that photo was captured
+            container.postDelayed({
+                container.foreground = ColorDrawable(Color.WHITE)
+                container.postDelayed(
+                    { container.foreground = null }, 50L)
+            }, 100L)
+        }
+        if(autoSave==0)
+        //previewView.post{    previewSavedImage(photoFile)}
+            startEditor(file.absolutePath)
+        else
+            autoSaveImage(file)
+    }
+
+    /* private fun previewSavedImage(file :File) {
+        container.preview_container.visibility=View.VISIBLE
+
+         container.preview_image.setImageURI(Uri.parse(file.absolutePath))
+
+         container.preview_save.setOnClickListener {
+             val imm =
+                 requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+             imm.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
+
+             val title = container.title.editText!!.text.toString()
+             val tags = container.tags.editText!!.text.toString()
+             if (title == "") {
+                 container.title.editText!!.setHint("Enter title")
+             } else {
+                 val photoEntity = PhotoEntity(
+                     0,
+                     title,
+                     file.lastModified(),
+                     file.absolutePath,
+                     tags
                  )
+                 viewModel.insert(photoEntity)
+                 container.preview_container.visibility = View.GONE
              }
-             // We can only change the foreground Drawable using API level 23+ API
-             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                 // Display flash animation to indicate that photo was captured
-                 container.postDelayed({
-                     container.foreground = ColorDrawable(Color.WHITE)
-                     container.postDelayed(
-                         { container.foreground = null }, 50L)
-                 }, 100L)
          }
-             if(autoSave==0)
-                startEditor(file.absolutePath)
-             else
-                 autoSaveImage(file)
-    }
+         container.preview_close.setOnClickListener {
+             val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+             imm.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
+             file.delete()
+             container.preview_container.visibility=View.GONE
+         }
 
-    private fun previewSavedImage(file :File) {
-       container.preview_container.visibility=View.VISIBLE
+     }
 
-        container.preview_image.setImageURI(Uri.parse(file.absolutePath))
-
-        container.preview_save.setOnClickListener {
-            val imm =
-                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
-
-            val title = container.title.editText!!.text.toString()
-            val tags = container.tags.editText!!.text.toString()
-            if (title == "") {
-                container.title.editText!!.setHint("Enter title")
-            } else {
-                val photoEntity = PhotoEntity(
-                    0,
-                    title,
-                    file.lastModified(),
-                    file.absolutePath,
-                    tags
-                )
-                viewModel.insert(photoEntity)
-                container.preview_container.visibility = View.GONE
-            }
-        }
-        container.preview_close.setOnClickListener {
-            val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
-            file.delete()
-            container.preview_container.visibility=View.GONE
-        }
-
-    }
+     */
 
     private fun autoSaveImage(file:File)
     {
@@ -305,10 +305,10 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
 
     fun methodWithPermissions()=
-        runWithPermissions(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO) {
+        runWithPermissions(Manifest.permission.CAMERA) {
             updateCameraUi()
             // Bind use cases
-               bindCameraUseCases()
+            bindCameraUseCases()
         }
 
 
@@ -356,6 +356,65 @@ class CameraFragment : Fragment(),LifecycleOwner{
         intent.putExtra("uri", uri)
         startActivity(intent)
     }
+
+    private fun goToGallery()
+    {
+        val intent = Intent(requireContext(), DHGalleryActivity::class.java)
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+    }
+
+    private fun startTimer()
+    {
+        var rtime=timeValue
+        container.camera_ui.visibility=View.GONE
+        container.start_countdown.visibility=View.VISIBLE
+        container.capture_button.visibility=View.GONE
+        val startTimer = object: CountDownTimer((rtime*1000).toLong(), 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                container.start_countdown.text= rtime.toString()
+                rtime--
+            }
+            override fun onFinish() {
+
+                container.start_countdown.text=""
+                container.start_countdown.visibility=View.GONE
+                photoCapture()
+                container.camera_ui.visibility=View.VISIBLE
+                container.capture_button.visibility=View.VISIBLE
+
+            }
+        }
+        startTimer.start()
+    }
+
+
+    private fun timerChange() {
+       when(timeValue)
+       {
+           0    -> {
+               timeValue = 3
+               container.camera_timer.background =
+                   AppCompatResources.getDrawable(requireContext(), R.drawable.ic_timer_black_24dp)
+           }
+           3    ->{
+               timeValue = 5
+               container.camera_timer.background =
+                   AppCompatResources.getDrawable(requireContext(), R.drawable.ic_timer_black_24dp)
+           }
+
+           5    ->{
+               timeValue = 0
+               container.camera_timer.background =
+                   AppCompatResources.getDrawable(requireContext(), R.drawable.ic_timer_off_black_24dp)
+               container.timer_time.text=""
+               return
+           }
+
+       }
+        container.timer_time.text=timeValue.toString()+"s"
+    }
+
 
 
 

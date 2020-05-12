@@ -25,6 +25,15 @@
         <item name="android:background">@drawable/circle_bg</item>
         <item name="android:contentDescription">Buttons</item>
     </style>
+    <style name="MatchParent">
+
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+        <item name="layout_constraintRight_toRightOf">parent</item>
+        <item name="layout_constraintLeft_toLeftOf">parent</item>
+        <item name="android:layout_width">@dimen/zero</item>
+        <item name="android:layout_height">@dimen/zero</item>
+    </style>
 
 
 
