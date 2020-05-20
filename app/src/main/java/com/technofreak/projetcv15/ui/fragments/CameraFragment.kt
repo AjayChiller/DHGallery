@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +26,7 @@ import androidx.camera.view.PreviewView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -167,7 +167,6 @@ class CameraFragment : Fragment(),LifecycleOwner{
 
 
 
-
             cameraProvider.unbindAll()
 
             // Choose the camera by requiring a lens facing
@@ -246,42 +245,7 @@ class CameraFragment : Fragment(),LifecycleOwner{
             autoSaveImage(file)
     }
 
-    /* private fun previewSavedImage(file :File) {
-        container.preview_container.visibility=View.VISIBLE
 
-         container.preview_image.setImageURI(Uri.parse(file.absolutePath))
-
-         container.preview_save.setOnClickListener {
-             val imm =
-                 requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-             imm.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
-
-             val title = container.title.editText!!.text.toString()
-             val tags = container.tags.editText!!.text.toString()
-             if (title == "") {
-                 container.title.editText!!.setHint("Enter title")
-             } else {
-                 val photoEntity = PhotoEntity(
-                     0,
-                     title,
-                     file.lastModified(),
-                     file.absolutePath,
-                     tags
-                 )
-                 viewModel.insert(photoEntity)
-                 container.preview_container.visibility = View.GONE
-             }
-         }
-         container.preview_close.setOnClickListener {
-             val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-             imm.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
-             file.delete()
-             container.preview_container.visibility=View.GONE
-         }
-
-     }
-
-     */
 
     private fun autoSaveImage(file:File)
     {
@@ -354,6 +318,9 @@ class CameraFragment : Fragment(),LifecycleOwner{
     {
         val intent = Intent(requireContext(),PhotoEditorActivity::class.java)
         intent.putExtra("uri", uri)
+        if(lensFacing==0)
+            intent.putExtra("lensFacing",false)
+        Log.i("DDDD","LENS FACING="+lensFacing)
         startActivity(intent)
     }
 

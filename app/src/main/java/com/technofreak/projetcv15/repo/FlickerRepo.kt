@@ -14,6 +14,24 @@ class FlickerRepo(private val database: FlickersDatabase) {
     val dataSourceFactory =database.flickerPhotoDao.getPhotos()
     val flickerphotos=LivePagedListBuilder(dataSourceFactory, DATABASE_PAGE_SIZE).build()
 
+    val stickers=database.flickerPhotoDao.getStickers()
+
+
+    suspend fun reloadStickers() {
+        withContext(Dispatchers.IO) {
+            val stickerList = loadPhotos("logo")
+            if (stickerList.size != 0) {
+                database.flickerPhotoDao.clearPhotos()
+                database.flickerPhotoDao.insertAll(stickerList)
+                Log.i("DDDD"," FETCHINGG")
+            }
+            else
+            {
+                Log.i("DDDD","NOTHING FETCHED")
+            }
+        }
+    }
+
 
     suspend fun searchImages(searchText:String) {
         withContext(Dispatchers.IO) {

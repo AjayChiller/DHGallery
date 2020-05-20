@@ -1,6 +1,7 @@
 package com.technofreak.projetcv15.database.cachedb
 
 import androidx.recyclerview.widget.DiffUtil
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -20,6 +21,15 @@ data class FlickerPhoto constructor(
                                 oldItem.title==newItem.title && oldItem.url==newItem.url
                 }
         }
+}
+
+@Entity
+data class StickerItem constructor(
+        @PrimaryKey
+        val id : Long,
+        @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+        var data: ByteArray? = null){
+
 }
 
 

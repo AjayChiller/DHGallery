@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -16,15 +17,17 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.textfield.TextInputLayout
+import com.rtugeek.android.colorseekbar.ColorSeekBar.OnColorChangeListener
 import com.technofreak.projetcv15.R
-import com.technofreak.projetcv15.adapter.EmojiAdapter
-import com.technofreak.projetcv15.adapter.FilterAdapter
-import com.technofreak.projetcv15.adapter.FilterListener
-import com.technofreak.projetcv15.adapter.StickerAdapter
+import com.technofreak.projetcv15.adapter.*
+import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.model.PhotoEntity
+import com.technofreak.projetcv15.utils.OnSwipeTouchListener
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.utils.focusAndShowKeyboard
 import com.technofreak.projetcv15.utils.hideKeyboard
@@ -32,15 +35,10 @@ import com.technofreak.projetcv15.viewmodel.PhotoEditorViewModel
 import com.theartofdev.edmodo.cropper.CropImageView
 import es.dmoral.toasty.Toasty
 import id.zelory.compressor.Compressor
-import ja.burhanrashid52.photoeditor.PhotoEditor
+import ja.burhanrashid52.photoeditor.*
 import ja.burhanrashid52.photoeditor.PhotoEditor.OnSaveListener
-import ja.burhanrashid52.photoeditor.PhotoFilter
-import ja.burhanrashid52.photoeditor.SaveSettings
-import ja.burhanrashid52.photoeditor.TextStyleBuilder
 import kotlinx.android.synthetic.main.activity_photo_editor.*
 import kotlinx.android.synthetic.main.image_input_dialog.view.*
-import petrov.kristiyan.colorpicker.ColorPicker
-import petrov.kristiyan.colorpicker.ColorPicker.OnChooseColorListener
 import java.io.File
 import java.io.IOException
 
@@ -52,6 +50,9 @@ class PhotoEditorActivity : AppCompatActivity() {
     private lateinit var rbutton_entry:Animation
     private lateinit var lbutton_entry:Animation
     private lateinit var cropTool: CropImageView
+    var temp=true
+    var PICK_IMAGE_MULTIPLE = 100
+    var views=ArrayList<View>()
 
 
 
@@ -65,48 +66,100 @@ class PhotoEditorActivity : AppCompatActivity() {
         if (photoPath != null) {
             viewModel.isCaptured=true
             viewModel.photoFile = File(photoPath)
-            viewModel.fileUri=Uri.parse(photoPath)
+            viewModel.fileUri= Uri.parse(photoPath)
+            viewModel.isLensFacingBack=intent.getBooleanExtra("lensFacing",true)
             photo_editor_view.source.setImageURI(viewModel.fileUri)
             initializeEditor()
         } else {
             select_image.setOnClickListener { selectImage() }
         }
+
+        sticker_emoji_view.addItemDecoration(
+            SpaceItemDecoration(
+                60, 20, 20, 20
+            )
+        )
+
+        viewModel.stickersItem.observe(this, Observer{ images ->
+            Log.i("DDDD","---"+images.size)
+            viewModel.stickers=images
+        })
+
+        addGestures()
+
+
+    }
+
+    private fun addGestures() {
+        photo_editor_view.setOnTouchListener( object :OnSwipeTouchListener(this) {
+            override fun onSwipeTop() {
+                addFilters()
+            }
+
+            override fun onSwipeRight() {
+              //  Toast.makeText(applicationContext, "right", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onSwipeLeft() {
+             //   Toast.makeText(applicationContext, "left", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onSwipeBottom() {
+                //Toast.makeText(applicationContext, "bottom", Toast.LENGTH_SHORT).show()
+                if(filter_view.visibility==View.VISIBLE)
+                  closeFilters()
+            }
+
+
+
+
+        })
     }
 
     private fun selectImage() {
+        select_image.setOnClickListener{null}
         val intent = Intent()
-        intent.type = "image/*"
+        intent.setType("image/jpeg");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(intent, "Select Picture"),
-            PICK_REQUEST
-        )
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE)
+
     }
 
     private fun initializeEditor() {
         viewModel.OnTop=0
         intro.visibility = View.GONE
+        filter_text.visibility=View.VISIBLE
         viewButtons()
-       viewModel.textFont=ResourcesCompat.getFont(this, R.font.carter_one)
+        viewModel.textFont=ResourcesCompat.getFont(this, R.font.carter_one)
         mPhotoEditor = PhotoEditor.Builder(this, photo_editor_view)
             .setPinchTextScalable(true)
-            .setDefaultTextTypeface(viewModel.textFont)
             .build()
 
         cropTool=crop_Image_View
-
-        photo_editor_view.setOnClickListener{    mPhotoEditor.clearHelperBox()    }
-        draw.setOnClickListener { draw() }
+        draw_tool.setOnClickListener { draw() }
         add_Text.setOnClickListener { addText() }
-        add_Emoji.setOnClickListener { addEmoji() }
-        add_Sticker.setOnClickListener { addSricker() }
-        undo_tool.setOnClickListener { mPhotoEditor.undo() }
-        redo_tool.setOnClickListener { mPhotoEditor.redo() }
-        filter_tool.setOnClickListener { addFilters() }
-        cancle.setOnClickListener { clearAll()      }
+        add_Emoji.setOnClickListener { addons() }
+        //undo_tool.setOnClickListener { mPhotoEditor.undo() }
+       // redo_tool.setOnClickListener { mPhotoEditor.redo() }
+    //    cancle.setOnClickListener { clearAll()      }
         save.setOnClickListener { savePhoto() }
         delete.setOnClickListener { deletePhoto() }
-        crop_tool.setOnClickListener    {       cropPhoto()  }
+        crop_tool.setOnClickListener    {    cropPhoto()  }
+
+        if(viewModel.isMultiPhoto){
+            multi_photo_viewer.visibility=View.VISIBLE
+            val multiPhotoSelectionAdapter=
+                MultiPhotoSelectionAdapter(viewModel.multiFileList,object:ImageSelectListner{
+                override fun onImageSelected(selectedImage: Uri) {
+                    Toast.makeText(applicationContext,"sdsdd"+selectedImage,Toast.LENGTH_LONG).show()
+                }
+            })
+            val multiPhotoViewer=multi_photo_viewer
+            multiPhotoViewer.visibility-=View.VISIBLE
+            multiPhotoViewer.adapter=multiPhotoSelectionAdapter
+
+        }
     }
 
     private fun cropPhoto() {
@@ -119,7 +172,20 @@ class PhotoEditorActivity : AppCompatActivity() {
             var bitmap = BitmapFactory.decodeFile(viewModel.photoFile.absolutePath, bmOptions)
             bitmap = Bitmap.createBitmap(bitmap!!)
             cropTool.setImageBitmap(bitmap)
-            cropTool.rotateImage(90)
+            if (viewModel.isLensFacingBack) {
+                cropTool.rotateImage(90)
+            }
+            else {
+                if (temp) {
+                    cropTool.rotateImage(-90)
+                    cropTool.flipImageHorizontally()
+                    temp = false
+                } else {
+                    cropTool.rotateImage(90)
+                    temp=true
+                }
+
+            }
         }
         else
         {
@@ -136,6 +202,7 @@ class PhotoEditorActivity : AppCompatActivity() {
         photo_editor_view.source.setImageBitmap(cropped)
         mPhotoEditor.setFilterEffect(viewModel.prevFilter)
         viewModel.OnTop=0
+        cropTool.clearImage()
     }
 
     private fun deletePhoto() {
@@ -150,7 +217,6 @@ class PhotoEditorActivity : AppCompatActivity() {
         builder.setNegativeButton(android.R.string.no) { _, _ ->
         }
         builder.show()
-
     }
 
     private fun savePhoto() {
@@ -168,7 +234,7 @@ class PhotoEditorActivity : AppCompatActivity() {
                 Toasty.info(this, "Saving", Toast.LENGTH_SHORT ).show();
 
                 val saveSettings = SaveSettings.Builder().build()
-                val editedfilepath=externalCacheDir!!.absolutePath+System.currentTimeMillis()+".jpg"
+                val editedfilepath=externalCacheDir!!.absolutePath+System.currentTimeMillis()+"_Edited.jpg"
                 mPhotoEditor.saveAsFile(
                     editedfilepath,
                     saveSettings,
@@ -208,152 +274,118 @@ class PhotoEditorActivity : AppCompatActivity() {
 
     private fun addFilters() {
         mPhotoEditor.clearHelperBox()
+        stopDrawingMode()
         viewModel.OnTop = 5
-        filter_container.visibility = View.VISIBLE
+        filter_text.text="Swipe down to close"
+        filter_view.visibility = View.VISIBLE
         left_tools_container.visibility = View.GONE
         right_tools_container.visibility = View.GONE
-
         val filterAdapter = FilterAdapter(viewModel.filterPair, object : FilterListener {
             override fun onFilterSelected(photoFilter: PhotoFilter?) {
                 mPhotoEditor.setFilterEffect(photoFilter)
                 viewModel.prevFilter=photoFilter!!
+
             }
         }
         )
         filter_view.adapter = filterAdapter
-        filter_container.setOnClickListener {
-            viewModel.OnTop = 0
-            filter_container.visibility = View.GONE
-             viewButtons()
-        }
+    }
+
+    private fun closeFilters(){
+        viewModel.OnTop = 0
+        filter_text.text="^ Swipe up to add filters ^"
+        filter_view.visibility = View.GONE
+        viewButtons()
     }
 
     private fun draw() {
+        colorSlider.visibility=View.VISIBLE
+        draw_tool.setColorFilter(colorSlider.getColor())
         mPhotoEditor.clearHelperBox()
         viewModel.OnTop = 1
-        draw_container.visibility = View.VISIBLE
-        left_tools_container.visibility = View.GONE
-        right_tools_container.visibility = View.GONE
         mPhotoEditor.setBrushDrawingMode(true)
         mPhotoEditor.setBrushColor(getColor(R.color.colorPrimary))
-        brush_size.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                mPhotoEditor.setBrushSize(seekBar!!.progress.toFloat())
-            }
+        colorSlider.setOnColorChangeListener(OnColorChangeListener { colorBarPosition, alphaBarPosition, color ->
+            draw_tool.setColorFilter(color)
+            mPhotoEditor.brushColor=color
         })
-        opacity.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                mPhotoEditor.setOpacity(seekBar!!.progress)
-            }
-        })
-        eraser.setOnClickListener {
-            mPhotoEditor.brushEraser()
-        }
-        close_drawing.setOnClickListener {
-            viewModel.OnTop = 0
-            draw_container.visibility = View.GONE
-           viewButtons()
-            mPhotoEditor.setBrushDrawingMode(false)
-        }
-        brush_color_picker.setOnClickListener {
-            val colorPicker = ColorPicker(this)
-            colorPicker.show()
-            colorPicker.setOnChooseColorListener(object : OnChooseColorListener {
-                override fun onChooseColor(position: Int, color: Int) {
-                    mPhotoEditor.brushColor = color
-                }
-                override fun onCancel() {}
-            })
-        }
-
+    }
+    private fun stopDrawingMode(){
+        colorSlider.visibility=View.GONE
+        draw_tool.setColorFilter(resources.getColor(R.color.white))
+        mPhotoEditor.setBrushDrawingMode(false)
+        mPhotoEditor.clearHelperBox()
 
     }
 
-    private fun addEmoji() {
-        mPhotoEditor.clearHelperBox()
-        viewModel.OnTop = 4
+
+    private fun addons(){
+        stopDrawingMode()
+        viewModel.OnTop = 3
+        sticker_emoji_container.visibility=View.VISIBLE
         val emojiAdapter = EmojiAdapter(viewModel.emoji)
-        emoji_container.visibility = View.VISIBLE
-        emoji_container.layoutManager = GridLayoutManager(this, 5)
-        emoji_container.adapter = emojiAdapter
         emojiAdapter.setOnClickListener {
             viewModel.OnTop = 0
-            emoji_container.visibility = View.GONE
+            sticker_emoji_container.visibility = View.GONE
             mPhotoEditor.addEmoji(it)
         }
-
-    }
-
-    private fun addSricker() {
-        mPhotoEditor.clearHelperBox()
-        viewModel.OnTop = 3
-        val stickerAdapter = StickerAdapter(viewModel.stickers)
-        sticker_container.visibility = View.VISIBLE
-        sticker_container.layoutManager = GridLayoutManager(this, 3)
-        sticker_container.adapter = stickerAdapter
-        sticker_container.addItemDecoration(
-            SpaceItemDecoration(
-                60, 20, 20, 20
-            )
-        )
+        addEmoji(emojiAdapter)
+        val stickerAdapter=StickerAdapter()
         stickerAdapter.setOnClickListener {
             viewModel.OnTop = 0
-            sticker_container.visibility = View.GONE
+            sticker_emoji_container.visibility = View.GONE
             mPhotoEditor.addImage(it)
         }
+        stickerAdapter.submitList(viewModel.stickers)
+        emoji_tab.setOnClickListener{          addEmoji(emojiAdapter)       }
+        sticker_tab.setOnClickListener{          addSticker(stickerAdapter)        }
+    }
 
+    private fun addEmoji(emojiAdapter:EmojiAdapter){
+        sticker_emoji_view.layoutManager = GridLayoutManager(this, 5)
+        sticker_emoji_view.adapter=emojiAdapter
+    }
+
+    private fun addSticker(stickerAdapter: StickerAdapter){
+        sticker_emoji_view.layoutManager = GridLayoutManager(this, 3)
+        sticker_emoji_view.adapter = stickerAdapter
     }
 
     private fun addText() {
-        mPhotoEditor.clearHelperBox()
+        left_tools_container.visibility=View.GONE
+        right_tools_container.visibility=View.GONE
+        input_text_container.visibility=View.VISIBLE
+        stopDrawingMode()
+        colorSlider.visibility=View.VISIBLE
         viewModel.OnTop = 2
-        input_text.text=null
+        input_text.text = null
         focusAndShowKeyboard(this, input_text)
-        add_txt_container.visibility = View.VISIBLE
-        add_txt_container.setOnClickListener {
-            viewModel.OnTop = 0
-            hideKeyboard(this)
-            viewModel.currentText = input_text.text.toString()
-            add_txt_container.visibility = View.GONE
-            if (viewModel.currentText != "") {
-                val textStyle = TextStyleBuilder()
-                textStyle.withTextColor(viewModel.colorCode)
-                textStyle.withTextFont(viewModel.textFont!!)
-                textStyle.withBackgroundColor(viewModel.bgcolorCode)
-                mPhotoEditor.addText("  "+viewModel.currentText+"  ", textStyle)
-            }
+        input_text_container.setOnClickListener {
+            addingTextToPhoto()
         }
-
-        color_picker.setOnClickListener {
-            val colorPicker = ColorPicker(this)
-            colorPicker.show()
-            colorPicker.setOnChooseColorListener(object : OnChooseColorListener {
-                override fun onChooseColor(position: Int, color: Int) {
-                    input_text.setTextColor(color)
-                    viewModel.colorCode = color
-                }
-                override fun onCancel() {}
-            })
-        }
-        bg_color_picker.setOnClickListener {
-            val colorPicker = ColorPicker(this)
-            colorPicker.show()
-            colorPicker.setOnChooseColorListener(object : OnChooseColorListener {
-                override fun onChooseColor(position: Int, color: Int) {
-                    input_text.setBackgroundColor(color)
-                    viewModel.bgcolorCode = color
-                }
-                override fun onCancel() {}
-            })
+        colorSlider.setOnColorChangeListener( { colorBarPosition, alphaBarPosition, color ->
+            input_text.setTextColor(color)
+            viewModel.colorCode = color
+        })
+    }
+    private fun addingTextToPhoto(){
+        viewButtons()
+        viewModel.OnTop = 0
+        colorSlider.visibility=View.GONE
+        hideKeyboard(this)
+        viewModel.currentText = input_text.text.toString()
+        input_text_container.visibility = View.GONE
+        if (viewModel.currentText != "") {
+            val textStyle = TextStyleBuilder()
+            textStyle.withTextColor(viewModel.colorCode)
+            textStyle.withTextFont(viewModel.textFont!!)
+            textStyle.withBackgroundColor(viewModel.bgcolorCode)
+            mPhotoEditor.addText("  " + viewModel.currentText + "  ", textStyle)
         }
     }
 
+
+/*
     private fun clearAll()
     {
         val builder = AlertDialog.Builder(this)
@@ -371,6 +403,8 @@ class PhotoEditorActivity : AppCompatActivity() {
 
     }
 
+ */
+
 
     private fun goToGallery() {
         intent = Intent(this, DHGalleryActivity::class.java)
@@ -386,35 +420,21 @@ class PhotoEditorActivity : AppCompatActivity() {
             -1 ->goToGallery()
             0 -> deletePhoto()
             1 -> {
-                draw_container.visibility = View.GONE
-                viewButtons()
-                mPhotoEditor.setBrushDrawingMode(false)
+                stopDrawingMode()
             }
             2 -> {
-                viewModel.currentText = input_text.text.toString()
-                add_txt_container.visibility = View.GONE
-                if (viewModel.currentText != "") {
-                    val textStyle = TextStyleBuilder()
-                    textStyle.withTextColor(viewModel.colorCode)
-                    textStyle.withTextFont(viewModel.textFont!!)
-                    textStyle.withBackgroundColor(viewModel.bgcolorCode)
-                    mPhotoEditor.addText("  "+viewModel.currentText+"  ", textStyle)
-                }
-
+                addingTextToPhoto()
             }
             3 -> {
-                sticker_container.visibility = View.GONE
-            }
-            4 -> {
-                emoji_container.visibility = View.GONE
+                sticker_emoji_container.visibility = View.GONE
             }
             5 -> {
-                viewModel.OnTop = 0
-                filter_container.visibility = View.GONE
+                filter_view.visibility = View.GONE
                 viewButtons()
             }
             6  ->{
                 crop_container.visibility=View.GONE
+                cropTool.clearImage()
                 viewButtons()
             }
         }
@@ -422,21 +442,27 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == PICK_REQUEST) {
-                try {
-                    viewModel.fileUri = data!!.data!!
-                    photo_editor_view.source.setImageURI(viewModel.fileUri)
-                    initializeEditor()
-                } catch (e: IOException) {
-                    Log.i("DDDD", "tempp FILE " + e)
-                    e.printStackTrace()
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
+            select_image.setOnClickListener{    selectImage()   }
+            if (data != null && data.getClipData() != null) {
+                val count = data.getClipData()!!.getItemCount(); //evaluate the count before the for loop --- otherwise, the count is evaluated every loop.
+                for(i in 0..count-1) {
+                    viewModel.multiFileList.add( data.getClipData()!!.getItemAt(i).getUri())
                 }
+                  viewModel.fileUri=viewModel.multiFileList[0]
+
+            }else if (data != null && data.getData() != null) {
+                viewModel.fileUri = data!!.data!!
             }
-            super.onActivityResult(requestCode, resultCode, data)
+            photo_editor_view.source.setImageURI(viewModel.fileUri)
+            initializeEditor()
         }
     }
+
 
     private fun viewButtons()
     {
@@ -445,7 +471,6 @@ class PhotoEditorActivity : AppCompatActivity() {
         right_tools_container.visibility = View.VISIBLE
         right_tools_container.startAnimation(rbutton_entry)
     }
-
 }
 
 

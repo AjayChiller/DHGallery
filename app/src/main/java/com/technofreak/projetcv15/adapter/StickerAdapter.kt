@@ -1,16 +1,27 @@
 package com.technofreak.projetcv15.adapter
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.technofreak.projetcv15.R
+import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 import kotlinx.android.extensions.LayoutContainer
 
-class StickerAdapter(val sticker:List<Bitmap>) : RecyclerView.Adapter<StickerViewHolder>()  {
+
+
+
+class StickerAdapter(): ListAdapter<FlickerPhoto, StickerViewHolder>(
+    FlickerPhoto.DiffCallback) {
     private lateinit var onClick: (Bitmap) -> Unit
     fun setOnClickListener(onClick: (Bitmap) -> Unit) {
         this.onClick = onClick
@@ -23,21 +34,29 @@ class StickerAdapter(val sticker:List<Bitmap>) : RecyclerView.Adapter<StickerVie
         )
 
         vh.containerView.setOnClickListener {
-
-            onClick(vh.bitmap!!)
+            vh.bitmap?.let { it1 -> onClick(it1) }
         }
         return vh
     }
 
-    override fun getItemCount()=sticker.size
 
 
     override fun onBindViewHolder(holder: StickerViewHolder, position: Int) {
-        Log.i("DDDD","BINFING")
-           val stick = sticker[position]
+        val sticker = getItem(position)
 
-            holder.bitmap=stick
-            holder.imageView.setImageBitmap(stick)
+
+        Glide.with(holder.imageView)
+            .asBitmap()
+            .load(sticker?.url)
+            .into(object : CustomTarget<Bitmap>(){
+               override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    holder.imageView.setImageBitmap(resource)
+                    holder.bitmap=resource
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {
+
+                }
+            })
     }
 
 }

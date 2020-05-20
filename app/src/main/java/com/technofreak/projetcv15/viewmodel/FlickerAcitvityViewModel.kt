@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.*
 import com.technofreak.projetcv15.database.cachedb.getDatabase
@@ -16,26 +17,23 @@ class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(ap
     private val context=application
 
 
-    private val videosRepository = FlickerRepo(
+    private val flikerRepository = FlickerRepo(
         getDatabase(
             application
         )
     )
 
-    val flickerPhotos = videosRepository.flickerphotos
+    val flickerPhotos = flikerRepository.flickerphotos
 
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    init {
-
-    }
 
     fun funsearchText(searchtext:String)
     {
         if (isonnected())
             viewModelScope.launch {
-                videosRepository.searchImages(searchtext)
+                flikerRepository.searchImages(searchtext)
             }
         else
         {
@@ -49,40 +47,8 @@ class FlickerAcitvityViewModel ( application: Application) : AndroidViewModel(ap
         return activeNetwork?.isConnectedOrConnecting == true
     }
 
-
-
-
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

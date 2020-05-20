@@ -7,10 +7,8 @@ import android.animation.ObjectAnimator
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Point
-import android.graphics.Rect
-import android.graphics.RectF
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -21,6 +19,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuItemCompat
 import androidx.lifecycle.Observer
@@ -28,14 +27,15 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.FlickerAdapter
-import com.technofreak.projetcv15.viewmodel.FlickerAcitvityViewModel
 import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
 import com.technofreak.projetcv15.utils.backPress
+import com.technofreak.projetcv15.viewmodel.FlickerAcitvityViewModel
 import kotlinx.android.synthetic.main.activity_flicker.*
-import kotlinx.android.synthetic.main.activity_flicker.nav_view
 
 class FlickerActivity : AppCompatActivity() {
     private val viewModel: FlickerAcitvityViewModel by viewModels()
@@ -68,6 +68,7 @@ class FlickerActivity : AppCompatActivity() {
 
         galleryAdapter.setOnClickListener {
             zoomImageFromThumb(it.url)
+            val a=it.url
         }
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         flickerRecyclerView.addItemDecoration(

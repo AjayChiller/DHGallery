@@ -38,6 +38,7 @@ interface ApiService {
         @Query("method") method: String, @Query("api_key") api_key: String,
         @Query("format") format: String, @Query("nojsoncallback") nojsoncallback: Int,
         @Query("page") page: Int, @Query("text") text: String?
+
     ): FlickerPhotoModel
 }
 

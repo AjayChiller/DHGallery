@@ -1,33 +1,46 @@
 package com.technofreak.projetcv15.viewmodel
 
 import android.app.Application
-import android.content.res.AssetManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.net.Uri
 import android.util.Log
 import android.util.Pair
+import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
-import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.database.DhgalleryDatabase
+import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
+import com.technofreak.projetcv15.database.cachedb.getStickerDatabase
 import com.technofreak.projetcv15.model.PhotoEntity
+import com.technofreak.projetcv15.repo.FlickerRepo
 import com.technofreak.projetcv15.repo.PhotoDBRepository
 import ja.burhanrashid52.photoeditor.PhotoEditor
 import ja.burhanrashid52.photoeditor.PhotoFilter
-import kotlinx.android.synthetic.main.activity_camera.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import okhttp3.internal.threadName
 import java.io.File
 
 
 class PhotoEditorViewModel (application: Application) : AndroidViewModel(application) {
     val app = application
+    private val flikerRepository = FlickerRepo(
+        getStickerDatabase(
+            application
+        )
+    )
+    val stickersItem = flikerRepository.stickers
+    lateinit var stickers:List<FlickerPhoto>
+    private val viewModelJob = SupervisorJob()
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+
     private val photoRepository: PhotoDBRepository
-    val stickers=ArrayList<Bitmap>()
+
     lateinit var emoji: ArrayList<String>
     var currentText=""
     var colorCode= Color.BLACK
@@ -39,21 +52,29 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
      lateinit var photoFile: File
      var textFont: Typeface?=null
      var prevFilter=PhotoFilter.NONE
+     var isLensFacingBack=true
 
 
-    val filterPair: MutableList<Pair<String, PhotoFilter>> =
-        java.util.ArrayList()
+    var multiFileList=ArrayList<Uri>()
+    var isMultiPhoto=true
+
+    var currentView: View?=null
+    var currentUri:Uri?=null
+    lateinit var rootView: ConstraintLayout
+
+
+    val filterPair: MutableList<Pair<String, PhotoFilter>> =        java.util.ArrayList()
 
     init {
-        val dhgalleryDatabaseDao =
-            DhgalleryDatabase.getDatabase(application).dhgalleryDatabaseDao()
+        val dhgalleryDatabaseDao =    DhgalleryDatabase.getDatabase(application).dhgalleryDatabaseDao()
         photoRepository = PhotoDBRepository(dhgalleryDatabaseDao)
         viewModelScope.launch {
-            getStickers()
+            reloadStickers()
             getEmoji()
             setupFilters()
         }
     }
+
 
 
     fun insert(photoEntity: PhotoEntity) = viewModelScope.launch(Dispatchers.IO) {
@@ -70,19 +91,30 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
         emoji=PhotoEditor.getEmojis(app)
     }
 
-
-    suspend fun getStickers() {
-       val asset:AssetManager=app.assets
-        for( i in asset.list("stickers/")!!) {
-            val ins = asset.open("stickers/" + i)
-            val bitmap = BitmapFactory.decodeStream(ins)
-            stickers.add(bitmap)
+    fun reloadStickers()
+    {
+        if (isonnected())
+            viewModelScope.launch {
+                flikerRepository.reloadStickers()
+            }
+        else
+        {
+            //   Toast.makeText(app,"No Network", Toast.LENGTH_SHORT).show()
         }
     }
 
+    fun isonnected():Boolean{
+        val cm = app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        return activeNetwork?.isConnectedOrConnecting == true
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
+    }
 
     suspend fun setupFilters()  {
-        Log.i("DDDD","-------------------"+ Thread.currentThread())
         filterPair.add(
             Pair(
                 "filters/original.jpg",
@@ -109,7 +141,7 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
         )
         filterPair.add(
             Pair(
-                "filters/documentary.png",
+                "filters/document.png",
                 PhotoFilter.DOCUMENTARY
             )
         )
@@ -125,12 +157,7 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
                 PhotoFilter.FILL_LIGHT
             )
         )
-        filterPair.add(
-            Pair(
-                "filters/fish_eye.png",
-                PhotoFilter.FISH_EYE
-            )
-        )
+
         filterPair.add(
             Pair(
                 "filters/grain.png",
@@ -209,24 +236,7 @@ class PhotoEditorViewModel (application: Application) : AndroidViewModel(applica
                 PhotoFilter.BLACK_WHITE
             )
         )
-        filterPair.add(
-            Pair(
-                "filters/flip_horizental.png",
-                PhotoFilter.FLIP_HORIZONTAL
-            )
-        )
-        filterPair.add(
-            Pair(
-                "filters/flip_vertical.png",
-                PhotoFilter.FLIP_VERTICAL
-            )
-        )
-        filterPair.add(
-            Pair(
-                "filters/rotate.png",
-                PhotoFilter.ROTATE
-            )
-        )
+
     }
 }
 

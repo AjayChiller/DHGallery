@@ -13,4 +13,5 @@
     <color name="camera_icon">#FFFFFF</color>
     <color name="gradient_strt">#000000</color>
     <color name="gradient_end">#606060</color>
+    <color name="white">#FFFFFF</color>
 </resources>

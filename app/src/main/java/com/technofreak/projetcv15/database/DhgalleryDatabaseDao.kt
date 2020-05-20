@@ -12,8 +12,7 @@ interface DhgalleryDatabaseDao{
     @Insert
     fun insert(photo: PhotoEntity)
 
-    @Query("SELECT * from dhgallery WHERE id = :id")
-    fun get(id: Long): PhotoEntity?
+
 
     @Query("SELECT * from dhgallery ORDER BY dateTaken DESC")
     fun getall(): LiveData<List<PhotoEntity>>
