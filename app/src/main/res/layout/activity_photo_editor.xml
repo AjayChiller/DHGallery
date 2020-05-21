@@ -16,22 +16,10 @@
         tools:layout_editor_absoluteY="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/multi_photo_viewer"
+        app:layout_constraintBottom_toTopOf="@id/bottom_recyclerView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/multi_photo_viewer"
-        android:background="#000000"
-        android:layout_width="@dimen/zero"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="visible"
-        />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -83,10 +71,11 @@
             android:src="@drawable/save_icon" />
 
         <ImageButton
-            android:tooltipText="Delete"
-            android:id="@+id/delete"
+            android:tooltipText="Clear"
+            android:id="@+id/clear_button"
             style="@style/EditButtons.PhotoEditingTools"
-            android:src="@drawable/delete_icon" />
+            android:src="@drawable/ic_close_black_24dp"
+            android:tint="@color/white"/>
 <!--
         <ImageButton
             android:id="@+id/redo_tool"
@@ -154,6 +143,7 @@
             android:id="@+id/crop_Image_View"
             style="@style/MatchParent"
             app:cropGuidelines="onTouch"
+            app:cropInitialCropWindowPaddingRatio="0"
             android:background="@color/colorPrimaryDark"
             tools:ignore="MissingConstraints"
             />
@@ -219,14 +209,14 @@
         android:text="^ Swipe up to add filters ^"
         android:textColor="@color/white"
         android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/multi_photo_viewer"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_recyclerView"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:visibility="gone"/>
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/filter_view"
+        android:id="@+id/bottom_recyclerView"
         android:background="#000000"
         android:layout_width="@dimen/zero"
         android:layout_height="wrap_content"
@@ -239,6 +229,8 @@
         />
 
 
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="@dimen/zero"
         android:layout_height="@dimen/zero"
@@ -247,14 +239,14 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="#78000000"
+        android:background="#AD000000"
         android:visibility="gone">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/sticker_emoji_view"
             android:layout_width="@dimen/zero"
             android:layout_height="@dimen/zero"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="50dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -262,20 +254,18 @@
             />
         <ImageView
             android:id="@+id/emoji_tab"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            style="@style/EditButtons"
             android:layout_marginBottom="2.5dp"
-            android:background="@drawable/ic_tag_faces_black_24dp"
+            android:src="@drawable/ic_tag_faces_black_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/sticker_tab"
             app:layout_constraintLeft_toLeftOf="parent"
             />
         <ImageView
             android:id="@+id/sticker_tab"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            style="@style/EditButtons"
             android:layout_marginBottom="2.5dp"
-            android:background="@drawable/sticker_icon"
+            android:src="@drawable/sticker_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/emoji_tab"/>

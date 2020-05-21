@@ -18,7 +18,7 @@ import java.io.IOException
 import java.io.InputStream
 
 
-class MultiPhotoSelectionAdapter(val photos:List<Uri>, val imageSelectListner: ImageSelectListner) :
+class MultiPhotoSelectionAdapter(val photos:List<Bitmap>, val imageSelectListner: ImageSelectListner) :
     RecyclerView.Adapter<MultiPhotoSelectionAdapter.PhotoViewHolder>() {
 
 
@@ -35,9 +35,9 @@ class MultiPhotoSelectionAdapter(val photos:List<Uri>, val imageSelectListner: I
         holder: PhotoViewHolder,
         position: Int
     ) {
-        val uri = photos[position]
+        val bitmap = photos[position]
         Glide.with(holder.imageView)
-            .load(uri)
+            .load(bitmap)
             .thumbnail(0.33f)
             .centerCrop()
             .into(holder.imageView)
@@ -53,7 +53,7 @@ class MultiPhotoSelectionAdapter(val photos:List<Uri>, val imageSelectListner: I
            val imageView: ImageView = itemView.findViewById(R.id.image_view)
         init {
             itemView.setOnClickListener {
-                imageSelectListner.onImageSelected(photos[layoutPosition])
+                imageSelectListner.onImageSelected(layoutPosition)
             }
         }
 
@@ -63,5 +63,5 @@ class MultiPhotoSelectionAdapter(val photos:List<Uri>, val imageSelectListner: I
 
 
 interface ImageSelectListner {
-    fun onImageSelected(selectedImage: Uri )
+    fun onImageSelected(pos:Int)
 }

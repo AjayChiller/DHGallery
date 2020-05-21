@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -80,7 +81,6 @@ class CameraFragment : Fragment(),LifecycleOwner{
         displayManager.registerDisplayListener(displayListener, null)
 
         previewView.post {
-
             // Keep track of the display in which this view is attached
             displayId = previewView.display.displayId
             // Build UI controls
@@ -251,7 +251,6 @@ class CameraFragment : Fragment(),LifecycleOwner{
     {
         val compressor= Compressor(requireContext())
         compressor.setDestinationDirectoryPath(requireContext().externalMediaDirs.first().absolutePath)
-
         val photoFile=  compressor.compressToFile(file)
         Log.i("DDDD","COMPRESSED AND SAVED TO "+photoFile.absolutePath)
         val photoEntity = PhotoEntity(

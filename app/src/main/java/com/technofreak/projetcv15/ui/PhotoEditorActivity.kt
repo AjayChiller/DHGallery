@@ -1,23 +1,23 @@
 package com.technofreak.projetcv15.ui
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -25,7 +25,6 @@ import com.google.android.material.textfield.TextInputLayout
 import com.rtugeek.android.colorseekbar.ColorSeekBar.OnColorChangeListener
 import com.technofreak.projetcv15.R
 import com.technofreak.projetcv15.adapter.*
-import com.technofreak.projetcv15.database.cachedb.FlickerPhoto
 import com.technofreak.projetcv15.model.PhotoEntity
 import com.technofreak.projetcv15.utils.OnSwipeTouchListener
 import com.technofreak.projetcv15.utils.SpaceItemDecoration
@@ -39,10 +38,13 @@ import ja.burhanrashid52.photoeditor.*
 import ja.burhanrashid52.photoeditor.PhotoEditor.OnSaveListener
 import kotlinx.android.synthetic.main.activity_photo_editor.*
 import kotlinx.android.synthetic.main.image_input_dialog.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
-
-private const val PICK_REQUEST = 100
+import java.io.OutputStream
 
 class PhotoEditorActivity : AppCompatActivity() {
     private val viewModel: PhotoEditorViewModel by viewModels()
@@ -50,10 +52,7 @@ class PhotoEditorActivity : AppCompatActivity() {
     private lateinit var rbutton_entry:Animation
     private lateinit var lbutton_entry:Animation
     private lateinit var cropTool: CropImageView
-    var temp=true
     var PICK_IMAGE_MULTIPLE = 100
-    var views=ArrayList<View>()
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,11 +63,16 @@ class PhotoEditorActivity : AppCompatActivity() {
         lbutton_entry = AnimationUtils.loadAnimation(            this,            R.anim.lbutton_entry        )
         val photoPath = intent.getStringExtra("uri")
         if (photoPath != null) {
+
+          //  cropTool.setImageBitmap(bitmap)
             viewModel.isCaptured=true
             viewModel.photoFile = File(photoPath)
-            viewModel.fileUri= Uri.parse(photoPath)
-            viewModel.isLensFacingBack=intent.getBooleanExtra("lensFacing",true)
-            photo_editor_view.source.setImageURI(viewModel.fileUri)
+            val bmOptions = BitmapFactory.Options()
+            var bitmap = BitmapFactory.decodeFile(viewModel.photoFile.absolutePath, bmOptions)
+            bitmap = Bitmap.createBitmap(bitmap!!)
+            viewModel.fileUri= bitmap
+            viewModel.multiFileList.add(bitmap)
+            photo_editor_view.source.setImageBitmap(bitmap)
             initializeEditor()
         } else {
             select_image.setOnClickListener { selectImage() }
@@ -81,13 +85,9 @@ class PhotoEditorActivity : AppCompatActivity() {
         )
 
         viewModel.stickersItem.observe(this, Observer{ images ->
-            Log.i("DDDD","---"+images.size)
             viewModel.stickers=images
         })
-
         addGestures()
-
-
     }
 
     private fun addGestures() {
@@ -105,14 +105,8 @@ class PhotoEditorActivity : AppCompatActivity() {
             }
 
             override fun onSwipeBottom() {
-                //Toast.makeText(applicationContext, "bottom", Toast.LENGTH_SHORT).show()
-                if(filter_view.visibility==View.VISIBLE)
                   closeFilters()
             }
-
-
-
-
         })
     }
 
@@ -123,7 +117,6 @@ class PhotoEditorActivity : AppCompatActivity() {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         intent.action = Intent.ACTION_GET_CONTENT
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE)
-
     }
 
     private fun initializeEditor() {
@@ -135,31 +128,42 @@ class PhotoEditorActivity : AppCompatActivity() {
         mPhotoEditor = PhotoEditor.Builder(this, photo_editor_view)
             .setPinchTextScalable(true)
             .build()
-
         cropTool=crop_Image_View
         draw_tool.setOnClickListener { draw() }
         add_Text.setOnClickListener { addText() }
         add_Emoji.setOnClickListener { addons() }
         //undo_tool.setOnClickListener { mPhotoEditor.undo() }
-       // redo_tool.setOnClickListener { mPhotoEditor.redo() }
-    //    cancle.setOnClickListener { clearAll()      }
+         // redo_tool.setOnClickListener { mPhotoEditor.redo() }
+        clear_button.setOnClickListener { clearAll()      }
         save.setOnClickListener { savePhoto() }
-        delete.setOnClickListener { deletePhoto() }
+      //  delete.setOnClickListener { deletePhoto() }
         crop_tool.setOnClickListener    {    cropPhoto()  }
+        initFilterandMulltiselection()
+
+    }
+
+    private fun initFilterandMulltiselection() {
 
         if(viewModel.isMultiPhoto){
-            multi_photo_viewer.visibility=View.VISIBLE
-            val multiPhotoSelectionAdapter=
-                MultiPhotoSelectionAdapter(viewModel.multiFileList,object:ImageSelectListner{
-                override fun onImageSelected(selectedImage: Uri) {
-                    Toast.makeText(applicationContext,"sdsdd"+selectedImage,Toast.LENGTH_LONG).show()
-                }
-            })
-            val multiPhotoViewer=multi_photo_viewer
-            multiPhotoViewer.visibility-=View.VISIBLE
-            multiPhotoViewer.adapter=multiPhotoSelectionAdapter
 
+            viewModel.multiPhotoSelectionAdapter=
+                MultiPhotoSelectionAdapter(viewModel.multiFileList,object:ImageSelectListner{
+                    override fun onImageSelected(pos: Int) {
+                        changePhoto(pos)
+                    }
+                })
+            bottom_recyclerView.visibility=View.VISIBLE
+            bottom_recyclerView.adapter=viewModel.multiPhotoSelectionAdapter
         }
+
+        viewModel.filterAdapter = FilterAdapter(viewModel.filterPair, object : FilterListener {
+            override fun onFilterSelected(photoFilter: PhotoFilter?) {
+                mPhotoEditor.setFilterEffect(photoFilter)
+                viewModel.prevFilter=photoFilter!!
+
+            }
+        }
+        )
     }
 
     private fun cropPhoto() {
@@ -167,30 +171,11 @@ class PhotoEditorActivity : AppCompatActivity() {
         crop_container.visibility=View.VISIBLE
         left_tools_container.visibility = View.GONE
         right_tools_container.visibility = View.GONE
-        if(viewModel.isCaptured) {
-            val bmOptions = BitmapFactory.Options()
-            var bitmap = BitmapFactory.decodeFile(viewModel.photoFile.absolutePath, bmOptions)
-            bitmap = Bitmap.createBitmap(bitmap!!)
-            cropTool.setImageBitmap(bitmap)
-            if (viewModel.isLensFacingBack) {
-                cropTool.rotateImage(90)
-            }
-            else {
-                if (temp) {
-                    cropTool.rotateImage(-90)
-                    cropTool.flipImageHorizontally()
-                    temp = false
-                } else {
-                    cropTool.rotateImage(90)
-                    temp=true
-                }
+        bottom_recyclerView.visibility=View.GONE
+        filter_text.visibility=View.GONE
 
-            }
-        }
-        else
-        {
-            cropTool.setImageUriAsync(viewModel.fileUri)
-        }
+        cropTool.setImageBitmap(viewModel.fileUri)
+
         rotate_crop.setOnClickListener{     cropTool.rotateImage(90)    }
         save_crop.setOnClickListener{  saveCrop()        }
     }
@@ -198,6 +183,8 @@ class PhotoEditorActivity : AppCompatActivity() {
     private fun saveCrop() {
         val cropped = cropTool.croppedImage
         crop_container.visibility=View.GONE
+        bottom_recyclerView.visibility=View.VISIBLE
+        filter_text.visibility=View.VISIBLE
         viewButtons()
         photo_editor_view.source.setImageBitmap(cropped)
         mPhotoEditor.setFilterEffect(viewModel.prevFilter)
@@ -230,39 +217,8 @@ class PhotoEditorActivity : AppCompatActivity() {
             .setView(customLayout)
             .setPositiveButton("Submit") { dialogInterface, _ ->
                 dialogInterface.dismiss()
-                progressBar.visibility = View.VISIBLE
-                Toasty.info(this, "Saving", Toast.LENGTH_SHORT ).show();
+                saveAllImages( image_title.editText!!.text.toString(), image_tags.editText!!.text.toString())
 
-                val saveSettings = SaveSettings.Builder().build()
-                val editedfilepath=externalCacheDir!!.absolutePath+System.currentTimeMillis()+"_Edited.jpg"
-                mPhotoEditor.saveAsFile(
-                    editedfilepath,
-                    saveSettings,
-                    object : OnSaveListener {
-                        override fun onSuccess(imagePath: String) {
-                            val editedFile=File(imagePath)
-                            val compressor =
-                                Compressor(applicationContext).setDestinationDirectoryPath(externalMediaDirs.first().absolutePath)
-                            val compressedFile = compressor.compressToFile(editedFile)
-                            val photoEntity = PhotoEntity(
-                                0,
-                                image_title.editText!!.text.toString(),
-                                compressedFile.lastModified(),
-                                compressedFile.absolutePath,
-                                image_tags.editText!!.text.toString()
-                            )
-                            viewModel.insert(photoEntity)
-                            editedFile.delete()
-                            if(viewModel.isCaptured)
-                                viewModel.photoFile.delete()
-                            photo_editor_view.source.setImageURI(null)
-                            goToGallery()
-                        }
-
-                        override fun onFailure(exception: Exception) {
-                            Toast.makeText(applicationContext,"FAILED",Toast.LENGTH_SHORT).show()
-                        }
-                    })
             }
             .setNegativeButton("Cancle") { dialogInterface, _ ->
                 viewButtons()
@@ -272,30 +228,77 @@ class PhotoEditorActivity : AppCompatActivity() {
 
     }
 
+
+    private fun saveAllImages(title:String, tags:String)
+    {
+        progressBar.visibility = View.VISIBLE
+        Toasty.info(this, "Saving", Toast.LENGTH_SHORT ).show()
+
+        if (!viewModel.isMultiPhoto)   {
+            val saveSettings = SaveSettings.Builder().build()
+            val editedfilepath=externalCacheDir!!.absolutePath+System.currentTimeMillis()+"_Edited.jpg"
+            mPhotoEditor.saveAsFile(
+                editedfilepath,
+                saveSettings,
+                object : OnSaveListener {
+                    override fun onSuccess(imagePath: String) {
+                        val editedFile=File(imagePath)
+                        viewModel.compressAndSave(editedFile,title,tags)
+                        photo_editor_view.source.setImageURI(null)
+                        goToGallery()
+                        return
+                    }
+                    override fun onFailure(exception: Exception) {
+                        Toast.makeText(applicationContext,"FAILED",Toast.LENGTH_SHORT).show()
+                    }
+                })
+        }
+        else {
+            mPhotoEditor.saveAsBitmap(
+                object : OnSaveBitmap {
+                    override fun onBitmapReady(saveBitmap: Bitmap?) {
+                                viewModel.editedPhotosList[viewModel.currentPos].recycle()
+                                viewModel.editedPhotosList[viewModel.currentPos] = saveBitmap!!
+                    }
+                    override fun onFailure(exception: Exception) {
+                        Toast.makeText(applicationContext, "FAILED", Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                })
+
+            var editedFile:File
+            for (i in viewModel.editedPhotosList)
+            {
+               editedFile=viewModel.bitmapToFile(i)
+               viewModel.compressAndSave(editedFile,title,tags)
+                photo_editor_view.source.setImageURI(null)
+                i.recycle()
+            }
+        }
+        goToGallery()
+        return
+    }
+
     private fun addFilters() {
         mPhotoEditor.clearHelperBox()
         stopDrawingMode()
         viewModel.OnTop = 5
         filter_text.text="Swipe down to close"
-        filter_view.visibility = View.VISIBLE
+        bottom_recyclerView.visibility = View.VISIBLE
         left_tools_container.visibility = View.GONE
         right_tools_container.visibility = View.GONE
-        val filterAdapter = FilterAdapter(viewModel.filterPair, object : FilterListener {
-            override fun onFilterSelected(photoFilter: PhotoFilter?) {
-                mPhotoEditor.setFilterEffect(photoFilter)
-                viewModel.prevFilter=photoFilter!!
-
-            }
-        }
-        )
-        filter_view.adapter = filterAdapter
+        bottom_recyclerView.adapter = viewModel.filterAdapter
     }
 
     private fun closeFilters(){
         viewModel.OnTop = 0
-        filter_text.text="^ Swipe up to add filters ^"
-        filter_view.visibility = View.GONE
         viewButtons()
+        filter_text.text="^ Swipe up to add filters ^"
+        if(!viewModel.isMultiPhoto){
+                bottom_recyclerView.visibility=View.GONE
+            }
+        bottom_recyclerView.adapter=viewModel.multiPhotoSelectionAdapter
+
     }
 
     private fun draw() {
@@ -355,6 +358,8 @@ class PhotoEditorActivity : AppCompatActivity() {
         left_tools_container.visibility=View.GONE
         right_tools_container.visibility=View.GONE
         input_text_container.visibility=View.VISIBLE
+        bottom_recyclerView.visibility=View.GONE
+        filter_text.visibility=View.GONE
         stopDrawingMode()
         colorSlider.visibility=View.VISIBLE
         viewModel.OnTop = 2
@@ -371,10 +376,13 @@ class PhotoEditorActivity : AppCompatActivity() {
     private fun addingTextToPhoto(){
         viewButtons()
         viewModel.OnTop = 0
+        hideKeyboard(this)
         colorSlider.visibility=View.GONE
+        input_text_container.visibility = View.GONE
+        bottom_recyclerView.visibility=View.VISIBLE
+        filter_text.visibility=View.VISIBLE
         hideKeyboard(this)
         viewModel.currentText = input_text.text.toString()
-        input_text_container.visibility = View.GONE
         if (viewModel.currentText != "") {
             val textStyle = TextStyleBuilder()
             textStyle.withTextColor(viewModel.colorCode)
@@ -385,25 +393,22 @@ class PhotoEditorActivity : AppCompatActivity() {
     }
 
 
-/*
+
     private fun clearAll()
     {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Do you want to remove all the changes made ?")
         builder.setPositiveButton(android.R.string.yes) { _, _ ->
             mPhotoEditor.clearAllViews()
+            photo_editor_view.source.setImageBitmap(viewModel.multiFileList[viewModel.currentPos])
             viewModel.prevFilter=PhotoFilter.NONE
-
             mPhotoEditor.setFilterEffect(PhotoFilter.NONE)
-            photo_editor_view.source.setImageURI(viewModel.fileUri)
         }
         builder.setNegativeButton(android.R.string.no) { _, _ ->
         }
         builder.show()
-
     }
 
- */
 
 
     private fun goToGallery() {
@@ -419,19 +424,10 @@ class PhotoEditorActivity : AppCompatActivity() {
 
             -1 ->goToGallery()
             0 -> deletePhoto()
-            1 -> {
-                stopDrawingMode()
-            }
-            2 -> {
-                addingTextToPhoto()
-            }
-            3 -> {
-                sticker_emoji_container.visibility = View.GONE
-            }
-            5 -> {
-                filter_view.visibility = View.GONE
-                viewButtons()
-            }
+            1 -> stopDrawingMode()
+            2 -> addingTextToPhoto()
+            3 ->  sticker_emoji_container.visibility = View.GONE
+            5 ->  closeFilters()
             6  ->{
                 crop_container.visibility=View.GONE
                 cropTool.clearImage()
@@ -450,15 +446,24 @@ class PhotoEditorActivity : AppCompatActivity() {
             select_image.setOnClickListener{    selectImage()   }
             if (data != null && data.getClipData() != null) {
                 val count = data.getClipData()!!.getItemCount(); //evaluate the count before the for loop --- otherwise, the count is evaluated every loop.
+                  var tempBitmap:Bitmap
                 for(i in 0..count-1) {
-                    viewModel.multiFileList.add( data.getClipData()!!.getItemAt(i).getUri())
+                    tempBitmap  =  MediaStore.Images.Media.getBitmap(this.contentResolver, data!!.getClipData()!!.getItemAt(i).getUri())
+                    viewModel.multiFileList.add( tempBitmap)
+                    viewModel.editedPhotosList.add( tempBitmap.copy(tempBitmap.getConfig(), true))
+                    viewModel.isMultiPhoto=true
+                    Log.i("DDDD","--TO---"+i+"  "+viewModel.multiFileList[i])
+                    Log.i("DDDD","--TO---"+i+"  "+viewModel.editedPhotosList[i])
+
                 }
-                  viewModel.fileUri=viewModel.multiFileList[0]
+                  viewModel.fileUri=viewModel.editedPhotosList[0]
 
             }else if (data != null && data.getData() != null) {
-                viewModel.fileUri = data!!.data!!
+                viewModel.fileUri =  MediaStore.Images.Media.getBitmap(this.contentResolver, data!!.data!!)
+                viewModel.multiFileList.add(viewModel.fileUri)
             }
-            photo_editor_view.source.setImageURI(viewModel.fileUri)
+
+            photo_editor_view.source.setImageBitmap(viewModel.fileUri)
             initializeEditor()
         }
     }
@@ -470,6 +475,31 @@ class PhotoEditorActivity : AppCompatActivity() {
         left_tools_container.startAnimation(lbutton_entry)
         right_tools_container.visibility = View.VISIBLE
         right_tools_container.startAnimation(rbutton_entry)
+    }
+
+    private fun changePhoto(pos:Int) {
+
+        if(viewModel.currentPos==pos)
+            return
+        viewModel.prevFilter=PhotoFilter.NONE
+        mPhotoEditor.saveAsBitmap(
+            object : OnSaveBitmap {
+                override fun onBitmapReady(saveBitmap: Bitmap?) {
+                    if (saveBitmap != null) {
+                        viewModel.editedPhotosList[viewModel.currentPos].recycle()
+                        viewModel.editedPhotosList[viewModel.currentPos] = saveBitmap
+                        photo_editor_view.source.setImageBitmap(viewModel.editedPhotosList[pos])
+                        viewModel.currentPos = pos
+                        viewModel.fileUri = viewModel.editedPhotosList[pos]
+
+                    }
+                    else
+                      Toasty.error(applicationContext,"Sorry Couldnt load",Toasty.LENGTH_SHORT,true).show()
+                     }
+                override fun onFailure(exception: Exception) {
+                    Toast.makeText(applicationContext, "FAILED", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }
 
